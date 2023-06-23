@@ -47,7 +47,7 @@ module.exports = {
     connection.connect(err => {
       if (err) {
         console.error('Error connecting to database:', err);
-        interaction.reply({ content: 'Something went wrong with connecting to the database :(', ephemeral: true });
+        interaction.editReply({ content: 'Something went wrong with connecting to the database :(', ephemeral: true });
       } else {
         console.log('Connected to database!');
 
@@ -66,14 +66,14 @@ module.exports = {
             connection.query(insertUserQuery, userData, (err, result) => {
               if (err) {
                 console.error('Error inserting data:', err);
-                interaction.reply({ content: 'Something went wrong with registering :(', ephemeral: true });
+                interaction.editReply({ content: 'Something went wrong with registering :(', ephemeral: true });
               } else {
                 console.log('Data inserted successfully!');
-                interaction.reply({ content: 'Thank you for registering! :)', ephemeral: false });
+                interaction.editReply({ content: 'Thank you for registering! :)', ephemeral: false });
               }
             });
           } else {
-            interaction.reply({ content: 'Already registered.', ephemeral: true });
+            interaction.editReply({ content: 'Already registered.', ephemeral: true });
           }
           connection.end();
         });
