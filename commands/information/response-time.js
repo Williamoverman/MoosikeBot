@@ -5,6 +5,9 @@ module.exports = {
     .setName('ms')
     .setDescription('Check the bot\'s response time'),
   async execute(interaction) {
-    await interaction.reply(`Latency is ${Date.now() - interaction.createdTimestamp}ms. Bot Latency is ${Math.round(client.ws.ping)}ms`);
+    await interaction.deferReply();
+
+    const ping = Math.round(interaction.client.ws.ping);
+    await interaction.editReply(`Pong! Bot response time: ${ping}ms`);
   },
 };
