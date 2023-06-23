@@ -1,5 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
 const mysql = require('mysql');
+const fetch = require('node-fetch');
 require("dotenv").config();
 
 module.exports = {
