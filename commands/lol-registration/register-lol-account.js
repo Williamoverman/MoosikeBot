@@ -57,7 +57,7 @@ module.exports = {
       const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 180_000 });
 
       if (confirmation.customId === 'ready') {
-        await confirmation.update({ content: `ready`, components: [] });
+        await confirmation.update({ content: `...`, components: [] });
       } 
     } catch (e) {
       await interaction.editReply({ content: 'Confirmation not received within 3 minutes, cancelling...', embeds: [], components: []});
@@ -105,6 +105,7 @@ module.exports = {
     })
     .catch(error => {
       console.error(error);
+      interaction.editReply({ content: 'Something went wrong with the API.', embeds: [], components: []});
     });
   },
 };
