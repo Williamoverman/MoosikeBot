@@ -91,14 +91,14 @@ module.exports = {
                   }
                 });
               } else {
-                interaction.editReply({ content: 'Already registered.', ephemeral: true });
+                interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
               }
               connection.end();
             });
           }
         });
       } else {
-        interaction.editReply({ content: 'Incorrect profile picture.'});
+        interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [], });
       }
     })
     .catch(error => {
