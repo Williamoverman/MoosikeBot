@@ -35,7 +35,7 @@ module.exports = {
             interaction.reply({ content: 'Something went wrong with registering :(', ephemeral: true });
           } else {
             console.log('Data inserted successfully!');
-            interaction.reply({ content: 'Thank you for registering! !!!!! :)', ephemeral: false });
+            interaction.reply({ content: 'Thank you for registering! !!!! :)', ephemeral: false });
           }
         });
       }
