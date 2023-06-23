@@ -29,6 +29,10 @@ module.exports = {
 
     try {
       const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 180000 });
+
+      if (confirmation.customId === 'ready') {
+        await confirmation.update({ content: `top`, components: [] });
+      }
     } catch (e) {
       await interaction.editReply({ content: 'Confirmation not received within 3 minutes, cancelling...', components: [] });
     }
