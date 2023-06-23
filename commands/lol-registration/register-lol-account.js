@@ -13,7 +13,7 @@ module.exports = {
         .setRequired(true)),
   async execute(interaction) {
     
-    const response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true});
+    var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true});
 
     const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account change your profile picture in LoL to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
     const discordUserID = interaction.user.id;
@@ -44,7 +44,7 @@ module.exports = {
         }
         if (results.length != 0) {
           interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
-        } else if (results.length === 0) {
+        } else {
           response = interaction.editReply({
             embeds: [lolEmbed],
             components: [row],
