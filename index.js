@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { REST, Routes, Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 require("dotenv").config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -25,6 +25,23 @@ for (const folder of commandFolders) {
 
 client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
+
+	const rest = new REST().setToken(process.env.TOKEN);
+
+	(async () => {
+		try {
+			console.log(`Started refreshing ${commands.length} application (/) commands globally.`);
+
+			const data = await rest.put(
+				Routes.applicationCommands(process.env.CLIENTID),
+				{ body: commands },
+			);
+
+			console.log(`Successfully reloaded ${data.length} application (/) commands globally.`);
+		} catch (error) {
+			console.error(error);
+		}
+	})();
 });
 
 client.on(Events.InteractionCreate, async interaction => {

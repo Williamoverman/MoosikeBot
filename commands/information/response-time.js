@@ -6,6 +6,6 @@ module.exports = {
     .setDescription('Check the bot\'s response time'),
   async execute(interaction) {
     const ping = Math.round(interaction.client.ws.ping);
-    await interaction.reply(`Pong! Bot response time: ${ping}ms`);
+    await interaction.reply(`My response time is ${ping}ms`);
   },
 };
