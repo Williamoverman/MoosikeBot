@@ -7,7 +7,7 @@ module.exports = {
   async execute(interaction) {
     await interaction.deferReply();
 
-    const ping = Math.round(interaction.client.ws.ping);
-    await interaction.editReply(`Pong! Bot response time: ${ping}ms`);
+    
+    await interaction.editReply(`My response time is: ${Math.round(interaction.client.ws.ping)}ms`);
   },
 };
