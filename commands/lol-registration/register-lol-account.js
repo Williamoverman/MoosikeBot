@@ -14,6 +14,7 @@ module.exports = {
   async execute(interaction) {
     
     const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account change your profile picture in LoL to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
+    const discordUserID = interaction.user.id;
 
     const ready = new ButtonBuilder()
 			.setCustomId('ready')
@@ -38,8 +39,6 @@ module.exports = {
 
     connection.connect(err => {
       console.log('Connected to database!');
-
-      const discordUserID = interaction.user.id;
     
       const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
       connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
