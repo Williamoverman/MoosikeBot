@@ -13,6 +13,8 @@ module.exports = {
         .setRequired(true)),
   async execute(interaction) {
     
+    interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true});
+
     const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account change your profile picture in LoL to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
     const discordUserID = interaction.user.id;
 
@@ -41,15 +43,14 @@ module.exports = {
           return;
         }
         if (results.length != 0) {
-          interaction.reply({ content: 'Already registered.', embeds: [], components: []});
-        } else {
-          const response = interaction.reply({
-            embeds: [lolEmbed],
-            components: [row],
-            ephemeral: true,
-          });
+          interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
         }
       });  
+    });
+
+    const response = interaction.editReply({
+      embeds: [lolEmbed],
+      components: [row],
     });
 
     const collectorFilter = i => i.user.id === interaction.user.id;
