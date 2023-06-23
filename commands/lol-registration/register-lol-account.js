@@ -1,4 +1,4 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
+const { AttachmentBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
 const mysql = require('mysql');
 require("dotenv").config();
 
@@ -12,6 +12,8 @@ module.exports = {
         .setRequired(true)),
   async execute(interaction) {
 
+    const attachment = new AttachmentBuilder('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/28.png')
+
     const ready = new ButtonBuilder()
 			.setCustomId('ready')
 			.setLabel('Ready')
@@ -21,7 +23,7 @@ module.exports = {
 			.addComponents(ready);
 
 		const response = await interaction.reply({
-			content: `To confirm this is your league account`,
+			content: `To confirm this is your league account change your profile picture in league to this ${attachment}`,
 			components: [row],
 		});
 
