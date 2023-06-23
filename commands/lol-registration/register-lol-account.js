@@ -26,18 +26,19 @@ module.exports = {
 		const response = await interaction.reply({
       embeds: [lolEmbed],
 			components: [row],
+      ephemeral: true,
 		});
 
     const collectorFilter = i => i.user.id === interaction.user.id;
 
     try {
-      const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
+      const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 180_000 });
 
       if (confirmation.customId === 'ready') {
         await confirmation.update({ content: `ready`, components: [] });
       } 
     } catch (e) {
-      await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling', embeds: [], components: [], ephemeral: true });
+      await interaction.editReply({ content: 'Confirmation not received within 3 minutes, cancelling', embeds: [], components: []});
       return;
     }
 
@@ -97,7 +98,7 @@ module.exports = {
           }
         });
       } else {
-        interaction.editReply({ content: 'Incorrect profile picture.', ephemeral: true });
+        interaction.editReply({ content: 'Incorrect profile picture.'});
       }
     })
     .catch(error => {
