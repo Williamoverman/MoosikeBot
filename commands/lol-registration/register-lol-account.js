@@ -35,8 +35,6 @@ module.exports = {
             return;
           }
           if (results.length === 0) {
-            interaction.reply({ content: 'Already registered.', ephemeral: true });
-          } else {
             const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
             const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
             connection.query(insertUserQuery, userData, (err, result) => {
@@ -48,6 +46,8 @@ module.exports = {
                 interaction.reply({ content: 'Thank you for registering! :)', ephemeral: false });
               }
             });
+          } else {
+            interaction.reply({ content: 'Already registered.', ephemeral: true });
           }
           connection.end();
         });
