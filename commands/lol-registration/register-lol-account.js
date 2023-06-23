@@ -25,17 +25,12 @@ module.exports = {
 			components: [row],
 		});
 
-    const collectorFilter = i => i.user.id === interaction.user.id;
+    const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 3_600_000 });
 
-    try {
-      const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 180000 });
-
-      if (confirmation.customId === 'ready') {
-        await confirmation.update({ content: `top`, components: [] });
-      }
-    } catch (e) {
-      await interaction.editReply({ content: 'Confirmation not received within 3 minutes, cancelling...', components: [] });
-    }
+    collector.on('collect', async i => {
+      const selection = i.values[0];
+      await i.reply(`${i.user} has selected ${selection}!`);
+    });
 
     const connection = mysql.createConnection({
       host: process.env.DATABASEHOST,
