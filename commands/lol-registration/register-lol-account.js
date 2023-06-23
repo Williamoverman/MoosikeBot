@@ -12,7 +12,7 @@ module.exports = {
         .setDescription('Your LoL username!')
         .setRequired(true)),
   async execute(interaction) {
-
+    
     const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account change your profile picture in LoL to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
 
     const ready = new ButtonBuilder()
@@ -29,6 +29,28 @@ module.exports = {
       ephemeral: true,
 		});
 
+    const connection = mysql.createConnection({
+      host: process.env.DATABASEHOST,
+      user: process.env.DATABASEUSER,
+      password: process.env.DATABASEPASSWORD,
+      database: process.env.DATABASENAME
+    });
+
+    connection.connect(err => {
+      const discordUserID = interaction.user.id;
+    
+      const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
+      connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
+        if (err) {
+          console.error('Error executing query:', err);
+          return;
+        }
+        if (results.length != 0) {
+          interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
+        } 
+      });  
+    })
+
     const collectorFilter = i => i.user.id === interaction.user.id;
 
     try {
@@ -38,7 +60,7 @@ module.exports = {
         await confirmation.update({ content: `ready`, components: [] });
       } 
     } catch (e) {
-      await interaction.editReply({ content: 'Confirmation not received within 3 minutes, cancelling', embeds: [], components: []});
+      await interaction.editReply({ content: 'Confirmation not received within 3 minutes, cancelling...', embeds: [], components: []});
       return;
     }
 
@@ -56,49 +78,29 @@ module.exports = {
     .then(data => {
       const profileIconId = data.profileIconId;
       if (profileIconId == 1) {
-        const connection = mysql.createConnection({
-          host: process.env.DATABASEHOST,
-          user: process.env.DATABASEUSER,
-          password: process.env.DATABASEPASSWORD,
-          database: process.env.DATABASENAME
-        });
     
         connection.connect(err => {
           if (err) {
             console.error('Error connecting to database:', err);
-            interaction.editReply({ content: 'Something went wrong with connecting to the database :(', ephemeral: true });
+            interaction.editReply({ content: 'Something went wrong with connecting to the database :(', embeds: [], components: []});
           } else {
             console.log('Connected to database!');
-    
-            const discordUserID = interaction.user.id;
-    
-            const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
-            connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
+            const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+            const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
+            connection.query(insertUserQuery, userData, (err, result) => {
               if (err) {
-                console.error('Error executing query:', err);
-                return;
-              }
-              if (results.length === 0) {
-                const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-                const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
-                connection.query(insertUserQuery, userData, (err, result) => {
-                  if (err) {
-                    console.error('Error inserting data:', err);
-                    interaction.editReply({ content: 'Something went wrong with registering :(', ephemeral: true });
-                  } else {
-                    console.log('Data inserted successfully!');
-                    interaction.editReply({ content: 'Thank you for registering! :)', ephemeral: false });
-                  }
-                });
+                console.error('Error inserting data:', err);
+                interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
               } else {
-                interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
+                console.log('Data inserted successfully!');
+                interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
               }
-              connection.end();
             });
+            connection.end();
           }
         });
       } else {
-        interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [], });
+        interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
       }
     })
     .catch(error => {
