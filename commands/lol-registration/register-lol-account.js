@@ -24,6 +24,7 @@ module.exports = {
 
 		const response = await interaction.reply({
       embeds: [lolEmbed],
+			components: [row],
 		});
 
     const collectorFilter = i => i.user.id === interaction.user.id;
