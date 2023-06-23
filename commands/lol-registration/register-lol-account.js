@@ -1,4 +1,5 @@
-const { ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
+const { MessageActionRow, MessageButton } = require('discord.js').require('@discordjs/builders');
 const mysql = require('mysql');
 require("dotenv").config();
 
