@@ -41,17 +41,17 @@ module.exports = {
           return;
         }
         if (results.length != 0) {
-          interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
+          interaction.reply({ content: 'Already registered.', embeds: [], components: []});
         } 
       });  
     })
 
-    const response = await interaction.reply({
+    const response = await interaction.editReply({
       embeds: [lolEmbed],
 			components: [row],
       ephemeral: true,
 		});
-    
+
     const collectorFilter = i => i.user.id === interaction.user.id;
 
     try {
