@@ -42,62 +42,62 @@ module.exports = {
         }
         if (results.length != 0) {
           interaction.reply({ content: 'Already registered.', embeds: [], components: []});
-        } 
+        } else {
+          const response = interaction.reply({
+            embeds: [lolEmbed],
+            components: [row],
+            ephemeral: true,
+          });
+        }
       });  
-    })
-
-    const response = await interaction.editReply({
-      embeds: [lolEmbed],
-			components: [row],
-      ephemeral: true,
-		});
+    });
 
     const collectorFilter = i => i.user.id === interaction.user.id;
 
-    try {
-      const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 180_000 });
-
-      if (confirmation.customId === 'ready') {
-        await confirmation.update({ content: `...`, components: [] });
-      } 
-    } catch (e) {
-      await interaction.editReply({ content: 'Confirmation not received within 3 minutes, cancelling...', embeds: [], components: []});
-      return;
-    }
-
-    const leagueUsername = interaction.options.getString('username');
-
-    const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
-
-    fetch(apiLink)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('API request failed');
+      try {
+        const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 180_000 });
+  
+        if (confirmation.customId === 'ready') {
+          await confirmation.update({ content: `...`, components: [] });
+        } 
+      } catch (e) {
+        await interaction.editReply({ content: 'Confirmation not received within 3 minutes, cancelling...', embeds: [], components: []});
+        return;
       }
-      return response.json();
-    })
-    .then(data => {
-      const profileIconId = data.profileIconId;
-      if (profileIconId == 1) {
-        const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-            const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
-            connection.query(insertUserQuery, userData, (err, result) => {
-              if (err) {
-                console.error('Error inserting data:', err);
-                interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
-              } else {
-                console.log('Data inserted successfully!');
-                interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
-              }
-            });
-            connection.end();
-      } else {
-        interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
-      }
-    })
-    .catch(error => {
-      console.error(error);
-      interaction.editReply({ content: 'Something went wrong with the API.', embeds: [], components: []});
-    });
+  
+      const leagueUsername = interaction.options.getString('username');
+  
+      const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
+  
+      fetch(apiLink)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('API request failed');
+        }
+        return response.json();
+      })
+      .then(data => {
+        const profileIconId = data.profileIconId;
+        if (profileIconId == 1) {
+          const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+              const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
+              connection.query(insertUserQuery, userData, (err, result) => {
+                if (err) {
+                  console.error('Error inserting data:', err);
+                  interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
+                } else {
+                  console.log('Data inserted successfully!');
+                  interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
+                }
+              });
+              connection.end();
+        } else {
+          interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        interaction.editReply({ content: 'Something went wrong with the API.', embeds: [], components: []});
+      });
   },
 };
