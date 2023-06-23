@@ -44,7 +44,7 @@ module.exports = {
         }
         if (results.length != 0) {
           interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
-        } else {
+        } else if (results.length === 0) {
           response = interaction.editReply({
             embeds: [lolEmbed],
             components: [row],
