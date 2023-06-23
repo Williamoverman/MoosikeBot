@@ -12,7 +12,7 @@ module.exports = {
         .setRequired(true)),
   async execute(interaction) {
 
-    const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your league account change your profile picture in league to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
+    const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account change your profile picture in LoL to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
 
     const ready = new ButtonBuilder()
 			.setCustomId('ready')
@@ -36,51 +36,71 @@ module.exports = {
         await confirmation.update({ content: `ready`, components: [] });
       } 
     } catch (e) {
-      await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling', embeds: [] , components: [] });
+      await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling', embeds: [], components: [], ephemeral: true });
       return;
     }
 
-    const connection = mysql.createConnection({
-      host: process.env.DATABASEHOST,
-      user: process.env.DATABASEUSER,
-      password: process.env.DATABASEPASSWORD,
-      database: process.env.DATABASENAME
-    });
+    const leagueUsername = interaction.options.getString('username');
 
-    connection.connect(err => {
-      if (err) {
-        console.error('Error connecting to database:', err);
-        interaction.editReply({ content: 'Something went wrong with connecting to the database :(', ephemeral: true });
-      } else {
-        console.log('Connected to database!');
+    const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
 
-        const leagueUsername = interaction.options.getString('username');
-        const discordUserID = interaction.user.id;
-
-        const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
-        connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
-          if (err) {
-            console.error('Error executing query:', err);
-            return;
-          }
-          if (results.length === 0) {
-            const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-            const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
-            connection.query(insertUserQuery, userData, (err, result) => {
-              if (err) {
-                console.error('Error inserting data:', err);
-                interaction.editReply({ content: 'Something went wrong with registering :(', ephemeral: true });
-              } else {
-                console.log('Data inserted successfully!');
-                interaction.editReply({ content: 'Thank you for registering! :)', ephemeral: false });
-              }
-            });
-          } else {
-            interaction.editReply({ content: 'Already registered.', ephemeral: true });
-          }
-          connection.end();
-        });
+    fetch(apiLink)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('API request failed');
       }
+      return response.json();
+    })
+    .then(data => {
+      const profileIconId = data.profileIconId;
+      if (profileIconId == 1) {
+        const connection = mysql.createConnection({
+          host: process.env.DATABASEHOST,
+          user: process.env.DATABASEUSER,
+          password: process.env.DATABASEPASSWORD,
+          database: process.env.DATABASENAME
+        });
+    
+        connection.connect(err => {
+          if (err) {
+            console.error('Error connecting to database:', err);
+            interaction.editReply({ content: 'Something went wrong with connecting to the database :(', ephemeral: true });
+          } else {
+            console.log('Connected to database!');
+    
+            const discordUserID = interaction.user.id;
+    
+            const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
+            connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
+              if (err) {
+                console.error('Error executing query:', err);
+                return;
+              }
+              if (results.length === 0) {
+                const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+                const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
+                connection.query(insertUserQuery, userData, (err, result) => {
+                  if (err) {
+                    console.error('Error inserting data:', err);
+                    interaction.editReply({ content: 'Something went wrong with registering :(', ephemeral: true });
+                  } else {
+                    console.log('Data inserted successfully!');
+                    interaction.editReply({ content: 'Thank you for registering! :)', ephemeral: false });
+                  }
+                });
+              } else {
+                interaction.editReply({ content: 'Already registered.', ephemeral: true });
+              }
+              connection.end();
+            });
+          }
+        });
+      } else {
+        interaction.editReply({ content: 'Incorrect profile picture.', ephemeral: true });
+      }
+    })
+    .catch(error => {
+      console.error(error);
     });
   },
 };
