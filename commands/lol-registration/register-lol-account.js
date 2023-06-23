@@ -1,4 +1,4 @@
-const { EmbedBuilder, AttachmentBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
 const mysql = require('mysql');
 require("dotenv").config();
 
@@ -23,8 +23,7 @@ module.exports = {
 			.addComponents(ready);
 
 		const response = await interaction.reply({
-			content: `${lolEmbed}`,
-			components: [row],
+      embeds: [lolEmbed],
 		});
 
     const collectorFilter = i => i.user.id === interaction.user.id;
