@@ -36,7 +36,7 @@ module.exports = {
         await confirmation.update({ content: `ready`, components: [] });
       } 
     } catch (e) {
-      await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling', components: [] });
+      await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling', embeds: [] , components: [] });
       return;
     }
 
