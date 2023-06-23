@@ -37,6 +37,8 @@ module.exports = {
     });
 
     connection.connect(err => {
+      console.log('Connected to database!');
+
       const discordUserID = interaction.user.id;
     
       const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
@@ -78,14 +80,7 @@ module.exports = {
     .then(data => {
       const profileIconId = data.profileIconId;
       if (profileIconId == 1) {
-    
-        connection.connect(err => {
-          if (err) {
-            console.error('Error connecting to database:', err);
-            interaction.editReply({ content: 'Something went wrong with connecting to the database :(', embeds: [], components: []});
-          } else {
-            console.log('Connected to database!');
-            const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+        const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
             const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
             connection.query(insertUserQuery, userData, (err, result) => {
               if (err) {
@@ -97,8 +92,6 @@ module.exports = {
               }
             });
             connection.end();
-          }
-        });
       } else {
         interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
       }
