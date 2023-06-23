@@ -21,22 +21,35 @@ module.exports = {
     connection.connect(err => {
       if (err) {
         console.error('Error connecting to database:', err);
-        interaction.reply({ content: 'Something went wrong with registering :(', ephemeral: true });
+        interaction.reply({ content: 'Something went wrong with connecting to the database :(', ephemeral: true });
       } else {
         console.log('Connected to database!');
 
         const leagueUsername = interaction.options.getString('username');
         const discordUserID = interaction.user.id;
 
-        const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-        connection.query('INSERT INTO LoLregistration SET ?', userData, (err, result) => {
+        const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
+        connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
           if (err) {
-            console.error('Error inserting data:', err);
-            interaction.reply({ content: 'Something went wrong with registering :(', ephemeral: true });
-          } else {
-            console.log('Data inserted successfully!');
-            interaction.reply({ content: 'Thank you for registering! :)', ephemeral: false });
+            console.error('Error executing query:', err);
+            return;
           }
+          if (results.length === 0) {
+            interaction.reply({ content: 'Already registered.', ephemeral: true });
+          } else {
+            const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+            const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
+            connection.query(insertUserQuery, userData, (err, result) => {
+              if (err) {
+                console.error('Error inserting data:', err);
+                interaction.reply({ content: 'Something went wrong with registering :(', ephemeral: true });
+              } else {
+                console.log('Data inserted successfully!');
+                interaction.reply({ content: 'Thank you for registering! :)', ephemeral: false });
+              }
+            });
+          }
+          connection.end();
         });
       }
     });
