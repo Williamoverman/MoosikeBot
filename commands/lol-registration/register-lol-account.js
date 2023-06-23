@@ -24,12 +24,6 @@ module.exports = {
 		const row = new ActionRowBuilder()
 			.addComponents(ready);
 
-		const response = await interaction.reply({
-      embeds: [lolEmbed],
-			components: [row],
-      ephemeral: true,
-		});
-
     const connection = mysql.createConnection({
       host: process.env.DATABASEHOST,
       user: process.env.DATABASEUSER,
@@ -52,6 +46,12 @@ module.exports = {
       });  
     })
 
+    const response = await interaction.reply({
+      embeds: [lolEmbed],
+			components: [row],
+      ephemeral: true,
+		});
+    
     const collectorFilter = i => i.user.id === interaction.user.id;
 
     try {
