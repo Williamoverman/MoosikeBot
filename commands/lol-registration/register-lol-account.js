@@ -19,11 +19,11 @@ module.exports = {
     const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`;
 
     fetch(apiLink)
-      .then(response => {
-        if (!response.ok) {
+      .then(apiresponse => {
+        if (!apiresponse.ok) {
           throw new Error('API request failed');
         }
-        return response.json();
+        return apiresponse.json();
       })
       .then(data => {
         profileIconId = data.profileIconId;
@@ -64,6 +64,9 @@ module.exports = {
               connection.end();
               console.log("Connection closed.");
               interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
+              setTimeout(() => {
+                  return interaction.deleteReply();
+                }, 5000);
             } else {
               response = interaction.editReply({
                 content: '',
@@ -93,37 +96,33 @@ module.exports = {
                   }
                   connection.end();
                   console.log("Connection closed.");
-                  // Check if the original reply is still available before deleting it
-                  if (!interaction.deleted) {
-                    interaction.deleteReply();
-                  }
+                  setTimeout(() => {
+                    return interaction.deleteReply();
+                  }, 5000);
                 });
               } else {
                 interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
                 connection.end();
                 console.log("Connection closed.");
-                // Check if the original reply is still available before deleting it
-                if (!interaction.deleted) {
-                  interaction.deleteReply();
-                }
+                setTimeout(() => {
+                  return interaction.deleteReply();
+                }, 5000);
               }
             }
           })
           .catch(e => {
             interaction.editReply({ content: 'Deleting message..', embeds: [], components: [] });
-            // Check if the original reply is still available before deleting it
-            if (!interaction.deleted) {
+            setTimeout(() => {
               interaction.deleteReply();
-            }
+            }, 5000);
           });
       })
       .catch(error => {
         console.error(error);
         interaction.editReply({ content: 'No summoner found.', embeds: [], components: [] });
-        // Check if the original reply is still available before deleting it
-        if (!interaction.deleted) {
-          interaction.deleteReply();
-        }
+        setTimeout(() => {
+          return interaction.deleteReply();
+        }, 5000);
       });
   },
 };
