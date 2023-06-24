@@ -15,6 +15,31 @@ module.exports = {
     
     var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true});
 
+    var leagueUsername = interaction.options.getString('username');
+    var profileIconId = 0;
+    const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
+
+    fetch(apiLink)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+      return response.json();
+    })
+    .then(data => {
+        profileIconId = data.profileIconId;
+        leagueUsername = data.name;
+    })
+    .catch(error => {
+      console.error(error);
+      interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
+      connection.end();
+      console.log("Connection closed.");
+      setTimeout(() => {
+        return interaction.deleteReply();
+      }, 5000);
+    });
+    
     const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account change your profile picture in LoL to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
     const discordUserID = interaction.user.id;
 
@@ -59,31 +84,6 @@ module.exports = {
         }
       });  
     })
-
-    var leagueUsername = interaction.options.getString('username');
-    var profileIconId = 0;
-    const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
-
-    fetch(apiLink)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('API request failed');
-      }
-      return response.json();
-    })
-    .then(data => {
-        profileIconId = data.profileIconId;
-        leagueUsername = data.name;
-    })
-    .catch(error => {
-      console.error(error);
-      interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
-      connection.end();
-      console.log("Connection closed.");
-      setTimeout(() => {
-        return interaction.deleteReply();
-      }, 5000);
-    });
 
     const collectorFilter = i => i.user.id === interaction.user.id;
 
