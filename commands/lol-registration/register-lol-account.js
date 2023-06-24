@@ -69,7 +69,7 @@ module.exports = {
           await confirmation.update({ content: `...`, components: [] });
         } 
       } catch (e) {
-        await interaction.editReply({ content: 'Deleting message..', embeds: [], components: []});
+        interaction.editReply({ content: 'Deleting message..', embeds: [], components: []});
         setTimeout(() => {
           return interaction.deleteReply();
         }, 5000);
