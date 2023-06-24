@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ButtonStyle, Interaction } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
 const mysql = require('mysql');
 const fetch = require('isomorphic-fetch');
 require('dotenv').config();
