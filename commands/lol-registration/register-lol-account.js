@@ -90,7 +90,7 @@ module.exports = {
         return response.json();
       })
       .then(data => {
-        if (data.status.status_code = 404) {
+        if (data?.status?.status_code = 404) {
           interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
           connection.end();
           console.log("Connection closed.");
