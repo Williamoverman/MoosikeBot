@@ -82,7 +82,7 @@ module.exports = {
   
           const collectorFilter = i => i.user.id === interaction.user.id;
   
-          response.awaitMessageComponent({ filter: collectorFilter, time: 180_000 })
+          response.awaitMessageComponent({ filter: collectorFilter, time: 90_000 })
             .then(async confirmation => {
               if (confirmation.customId === 'ready') {
                 await confirmation.update({ content: `...`, components: [] });
