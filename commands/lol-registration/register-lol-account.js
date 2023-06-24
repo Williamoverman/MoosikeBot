@@ -61,7 +61,7 @@ module.exports = {
     })
 
     var leagueUsername = interaction.options.getString('username');
-  
+    var profileIconId = 0;
     const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
 
     fetch(apiLink)
@@ -72,9 +72,8 @@ module.exports = {
       return response.json();
     })
     .then(data => {
-        const profileIconId = data.profileIconId;
+        profileIconId = data.profileIconId;
         leagueUsername = data.name;
-        
     })
     .catch(error => {
       console.error(error);
