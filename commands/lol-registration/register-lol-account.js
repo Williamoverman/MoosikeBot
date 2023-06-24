@@ -115,6 +115,9 @@ module.exports = {
             interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
             connection.end();
             console.log("Connection closed.");
+            setTimeout(() => {
+              return interaction.deleteReply();
+            }, 5000);
           }
         } 
       } catch (e) {
