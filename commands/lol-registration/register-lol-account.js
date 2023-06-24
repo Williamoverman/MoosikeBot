@@ -86,28 +86,35 @@ module.exports = {
         return response.json();
       })
       .then(data => {
-        const profileIconId = data.profileIconId;
-        leagueUsername = data.name;
-        if (profileIconId == 1) {
-          const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-          const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
-          connection.query(insertUserQuery, userData, (err, result) => {
-            if (err) {
-              console.error('Error inserting data:', err);
-              interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
-              connection.end();
-              console.log("Connection closed.");
-            } else {
-              console.log('Data inserted successfully!');
-              interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
-              connection.end();
-              console.log("Connection closed.");
-            }
-          });
-        } else {
-          interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
+        if (data.status.status_code = 404) {
+          interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
           connection.end();
           console.log("Connection closed.");
+          return;
+        } else {
+          const profileIconId = data.profileIconId;
+          leagueUsername = data.name;
+          if (profileIconId == 1) {
+            const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+            const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
+            connection.query(insertUserQuery, userData, (err, result) => {
+              if (err) {
+                console.error('Error inserting data:', err);
+                interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
+                connection.end();
+                console.log("Connection closed.");
+              } else {
+                console.log('Data inserted successfully!');
+                interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
+                connection.end();
+                console.log("Connection closed.");
+              }
+            });
+          } else {
+            interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
+            connection.end();
+            console.log("Connection closed.");
+          }
         }
       })
       .catch(error => {
