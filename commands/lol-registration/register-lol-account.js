@@ -64,6 +64,9 @@ module.exports = {
               connection.end();
               console.log("Connection closed.");
               interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
+              setTimeout(() => {
+                return interaction.deleteReply();
+              }, 5000);
             } else {
               response = interaction.editReply({
                 content: '',
