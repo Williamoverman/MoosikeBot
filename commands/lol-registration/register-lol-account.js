@@ -59,7 +59,7 @@ module.exports = {
             embeds: [lolEmbed],
             components: [row],
           });
-          
+
           const collectorFilter = i => i.user.id === interaction.user.id;
 
           try {
@@ -75,7 +75,12 @@ module.exports = {
           }
         }
       });  
-    })
+    }).catch(error => {
+      console.error(error);
+      connection.end();
+      console.log("Connection closed.");
+      return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: []});
+    });
   
       var leagueUsername = interaction.options.getString('username');
   
@@ -89,7 +94,7 @@ module.exports = {
         return response.json();
       })
       .then(data => {
-        if (data.status.status_code = 404) {
+        if (data?.status?.status_code = 404) {
           connection.end();
           console.log("Connection closed.");
           return interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
