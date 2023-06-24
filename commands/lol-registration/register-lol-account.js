@@ -48,6 +48,9 @@ module.exports = {
         }
         if (results.length != 0) {
           interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
+          connection.end();
+          console.log("Connection closed.");
+          return;
         } else {
           response = interaction.editReply({
             content: '',
