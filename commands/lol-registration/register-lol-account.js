@@ -99,9 +99,15 @@ module.exports = {
                       if (err) {
                         console.error('Error inserting data:', err);
                         interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
+                        setTimeout(() => {
+                          return interaction.deleteReply();
+                        }, 5000);
                       } else {
                         console.log('Data inserted successfully!');
                         interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
+                        setTimeout(() => {
+                          return interaction.deleteReply();
+                        }, 5000);
                       }
                       if (!connectionClosed) { // Check the flag before closing the connection
                         connection.end();
