@@ -21,6 +21,7 @@ module.exports = {
       fetch(apiLink)
         .then(apiresponse => {
           if (!apiresponse.ok) {
+
             throw new Error('API request failed');
           }
           return apiresponse.json();
@@ -67,9 +68,6 @@ module.exports = {
                 console.log("Connection closed.");
                 connectionClosed = true; // Set the flag to true
                 interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
-                setTimeout(() => {
-                  return interaction.deleteReply().catch(console.error); // Add error handling
-                }, 5000);
               } else {
                 response = interaction.editReply({
                   content: '',
@@ -109,9 +107,6 @@ module.exports = {
                         connection.end();
                         console.log("Connection closed.");
                       }
-                      setTimeout(() => {
-                        return interaction.deleteReply().catch(console.error); // Add error handling
-                      }, 5000);
                     });
                   } else {
                     interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
@@ -119,9 +114,6 @@ module.exports = {
                       connection.end();
                       console.log("Connection closed.");
                     }
-                    setTimeout(() => {
-                      return interaction.deleteReply().catch(console.error); // Add error handling
-                    }, 5000);
                   }
                 }).catch(error => {
                   console.error(error);
@@ -135,7 +127,7 @@ module.exports = {
                 console.log("Connection closed.");
               }
               setTimeout(() => {
-                interaction.deleteReply().catch(console.error); // Add error handling
+                interaction.deleteReply();
               }, 5000);
             });
         })
@@ -143,12 +135,20 @@ module.exports = {
           console.error(error);
           interaction.editReply({ content: 'No summoner found.', embeds: [], components: [] });
           setTimeout(() => {
-            return interaction.deleteReply().catch(console.error); // Add error handling
+            return interaction.deleteReply();
           }, 5000);
         });
     } catch (error) {
       if (error.code === 10008) {
+        /*if (!connectionClosed) { // Check the flag before closing the connection
+          connection.end();
+          console.log("Connection closed.");
+        }*/
         console.error('The message could not be found or identified.');
+        /*interaction.editReply({ content: 'No response. Deleting message.', embeds: [], components: [] });
+          setTimeout(() => {
+            return interaction.deleteReply();
+          }, 5000);*/
       } else {
         console.error(error);
       }
