@@ -95,21 +95,27 @@ module.exports = {
                   return apiresponse.json();
                 })
                 .then(data => {
-                  profileIconId = data.profileIconId;
-                }).catch(error => {
-                  console.error(error);
-                });
-                if (profileIconId === 1) {
-                  const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-                  const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
-                  connection.query(insertUserQuery, userData, (err, result) => {
-                    if (err) {
-                      console.error('Error inserting data:', err);
-                      interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
-                    } else {
-                      console.log('Data inserted successfully!');
-                      interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
-                    }
+                  if (data.profileIconId === 1) {
+                    const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+                    const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
+                    connection.query(insertUserQuery, userData, (err, result) => {
+                      if (err) {
+                        console.error('Error inserting data:', err);
+                        interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
+                      } else {
+                        console.log('Data inserted successfully!');
+                        interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
+                      }
+                      if (!connectionClosed) { // Check the flag before closing the connection
+                        connection.end();
+                        console.log("Connection closed.");
+                      }
+                      setTimeout(() => {
+                        return interaction.deleteReply();
+                      }, 5000);
+                    });
+                  } else {
+                    interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
                     if (!connectionClosed) { // Check the flag before closing the connection
                       connection.end();
                       console.log("Connection closed.");
@@ -117,17 +123,10 @@ module.exports = {
                     setTimeout(() => {
                       return interaction.deleteReply();
                     }, 5000);
-                  });
-                } else {
-                  interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
-                  if (!connectionClosed) { // Check the flag before closing the connection
-                    connection.end();
-                    console.log("Connection closed.");
                   }
-                  setTimeout(() => {
-                    return interaction.deleteReply();
-                  }, 5000);
-                }
+                }).catch(error => {
+                  console.error(error);
+                });
               }
             })
             .catch(e => {
@@ -150,6 +149,10 @@ module.exports = {
         });
     } catch (error) {
       if (error.code === 10008) {
+        if (!connectionClosed) { // Check the flag before closing the connection
+          connection.end();
+          console.log("Connection closed.");
+        }
         console.error('The message could not be found or identified.');
         interaction.editReply({ content: 'No response. Deleting message.', embeds: [], components: [] });
           setTimeout(() => {
