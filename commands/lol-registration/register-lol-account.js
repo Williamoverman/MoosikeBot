@@ -87,19 +87,22 @@ module.exports = {
                 if (err) {
                   console.error('Error inserting data:', err);
                   interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
+                  connection.end();
                 } else {
                   console.log('Data inserted successfully!');
                   interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
+                  connection.end();
                 }
               });
-              connection.end();
         } else {
           interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
+          connection.end();
         }
       })
       .catch(error => {
         console.error(error);
         interaction.editReply({ content: 'Something went wrong with the API.', embeds: [], components: []});
+        connection.end();
       });
   },
 };
