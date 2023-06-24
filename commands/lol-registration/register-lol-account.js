@@ -47,6 +47,8 @@ module.exports = {
           database: process.env.DATABASENAME
         });
 
+        let connectionClosed = false; // Flag to track if the connection is closed
+
         connection.connect(err => {
           if (err) {
             console.error(err);
@@ -64,6 +66,7 @@ module.exports = {
             if (results.length !== 0) {
               connection.end();
               console.log("Connection closed.");
+              connectionClosed = true; // Set the flag to true
               interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
               setTimeout(() => {
                 return interaction.deleteReply();
@@ -95,16 +98,20 @@ module.exports = {
                     console.log('Data inserted successfully!');
                     interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
                   }
-                  connection.end();
-                  console.log("Connection closed.");
+                  if (!connectionClosed) { // Check the flag before closing the connection
+                    connection.end();
+                    console.log("Connection closed.");
+                  }
                   setTimeout(() => {
                     return interaction.deleteReply();
                   }, 5000);
                 });
               } else {
                 interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
-                connection.end();
-                console.log("Connection closed.");
+                if (!connectionClosed) { // Check the flag before closing the connection
+                  connection.end();
+                  console.log("Connection closed.");
+                }
                 setTimeout(() => {
                   return interaction.deleteReply();
                 }, 5000);
@@ -113,8 +120,10 @@ module.exports = {
           })
           .catch(e => {
             interaction.editReply({ content: 'Deleting message..', embeds: [], components: [] });
-            connection.end();
-            console.log("Connection closed.");
+            if (!connectionClosed) { // Check the flag before closing the connection
+              connection.end();
+              console.log("Connection closed.");
+            }
             setTimeout(() => {
               interaction.deleteReply();
             }, 5000);
