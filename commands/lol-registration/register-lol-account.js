@@ -64,9 +64,6 @@ module.exports = {
               connection.end();
               console.log("Connection closed.");
               interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
-              setTimeout(() => {
-                return interaction.deleteReply();
-              }, 5000);
             } else {
               response = interaction.editReply({
                 content: '',
@@ -96,33 +93,37 @@ module.exports = {
                   }
                   connection.end();
                   console.log("Connection closed.");
-                  setTimeout(() => {
-                    return interaction.deleteReply();
-                  }, 5000);
+                  // Check if the original reply is still available before deleting it
+                  if (!interaction.deleted) {
+                    interaction.deleteReply();
+                  }
                 });
               } else {
                 interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
                 connection.end();
                 console.log("Connection closed.");
-                setTimeout(() => {
-                  return interaction.deleteReply();
-                }, 5000);
+                // Check if the original reply is still available before deleting it
+                if (!interaction.deleted) {
+                  interaction.deleteReply();
+                }
               }
             }
           })
           .catch(e => {
             interaction.editReply({ content: 'Deleting message..', embeds: [], components: [] });
-            setTimeout(() => {
+            // Check if the original reply is still available before deleting it
+            if (!interaction.deleted) {
               interaction.deleteReply();
-            }, 5000);
+            }
           });
       })
       .catch(error => {
         console.error(error);
         interaction.editReply({ content: 'No summoner found.', embeds: [], components: [] });
-        setTimeout(() => {
-          return interaction.deleteReply();
-        }, 5000);
+        // Check if the original reply is still available before deleting it
+        if (!interaction.deleted) {
+          interaction.deleteReply();
+        }
       });
   },
 };
