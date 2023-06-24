@@ -36,7 +36,17 @@ module.exports = {
     .then(data => {
         profileIconId = data.profileIconId;
         leagueUsername = data.name;
-            
+    })
+    .catch(error => {
+      console.error(error);
+      interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
+      connection.end();
+      console.log("Connection closed.");
+      setTimeout(() => {
+        return interaction.deleteReply();
+      }, 5000);
+    });
+    
     const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account change your profile picture in LoL to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
     const discordUserID = interaction.user.id;
 
@@ -78,10 +88,10 @@ module.exports = {
     const collectorFilter = i => i.user.id === interaction.user.id;
 
       try {
-        const confirmation = response.awaitMessageComponent({ filter: collectorFilter, time: 120_000 });
+        const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 120_000 });
   
         if (confirmation.customId === 'ready') {
-          confirmation.update({ content: `...`, components: [] });
+          await confirmation.update({ content: `...`, components: [] });
           if (profileIconId == 1) {
             const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
             const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
@@ -116,15 +126,5 @@ module.exports = {
           interaction.deleteReply();
         }, 5000);
       }
-    })
-    .catch(error => {
-      console.error(error);
-      interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
-      connection.end();
-      console.log("Connection closed.");
-      setTimeout(() => {
-        return interaction.deleteReply();
-      }, 5000);
-    });
   },
 };
