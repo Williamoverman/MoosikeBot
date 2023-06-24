@@ -80,6 +80,9 @@ module.exports = {
       interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
       connection.end();
       console.log("Connection closed.");
+      setTimeout(() => {
+        return interaction.deleteReply();
+      }, 5000);
     });
 
     const collectorFilter = i => i.user.id === interaction.user.id;
