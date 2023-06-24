@@ -88,24 +88,18 @@ module.exports = {
         const profileIconId = data.profileIconId;
         if (profileIconId == 1) {
           const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-              const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
-              connection.connect(err => {
-                if (err) {
-                  console.error(err);
-                  interaction.editReply({ content: 'Something went wrong with the database connnection :(', embeds: [], components: []});
-                }
-                connection.query(insertUserQuery, userData, (err, result) => {
-                  if (err) {
-                    console.error('Error inserting data:', err);
-                    interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
-                  } else {
-                    console.log('Data inserted successfully!');
-                    interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
-                  }
-                  connection.end();
-                  console.log("Connection closed.");
-                });
-              })
+          const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
+          connection.query(insertUserQuery, userData, (err, result) => {
+            if (err) {
+              console.error('Error inserting data:', err);
+              interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
+            } else {
+              console.log('Data inserted successfully!');
+              interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
+            }
+            connection.end();
+            console.log("Connection closed.");
+          });
         } else {
           interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
         }
