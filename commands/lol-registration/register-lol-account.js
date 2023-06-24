@@ -148,15 +148,15 @@ module.exports = {
         });
     } catch (error) {
       if (error.code === 10008) {
-        if (!connectionClosed) { // Check the flag before closing the connection
+        /*if (!connectionClosed) { // Check the flag before closing the connection
           connection.end();
           console.log("Connection closed.");
-        }
+        }*/
         console.error('The message could not be found or identified.');
-        interaction.editReply({ content: 'No response. Deleting message.', embeds: [], components: [] });
+        /*interaction.editReply({ content: 'No response. Deleting message.', embeds: [], components: [] });
           setTimeout(() => {
             return interaction.deleteReply();
-          }, 5000);
+          }, 5000);*/
       } else {
         console.error(error);
       }
