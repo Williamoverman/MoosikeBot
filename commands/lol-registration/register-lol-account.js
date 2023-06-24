@@ -26,7 +26,6 @@ module.exports = {
         return apiresponse.json();
       })
       .then(data => {
-        profileIconId = data.profileIconId;
         leagueUsername = data.name;
 
         const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account, change your profile picture in LoL to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
@@ -87,6 +86,18 @@ module.exports = {
           .then(async confirmation => {
             if (confirmation.customId === 'ready') {
               await confirmation.update({ content: `...`, components: [] });
+              fetch(apiLink)
+              .then(apiresponse => {
+                if (!apiresponse.ok) {
+                  throw new Error('API request failed');
+                }
+                return apiresponse.json();
+              })
+              .then(data => {
+                profileIconId = data.profileIconId;
+              }).catch(error => {
+                console.error(error);
+              });
               if (profileIconId === 1) {
                 const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
                 const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
