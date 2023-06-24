@@ -50,9 +50,6 @@ module.exports = {
           connection.end();
           console.log("Connection closed.");
           interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
-          setTimeout(() => {
-            return interaction.deleteReply();
-          }, 5000);
         } else {
           response = interaction.editReply({
             content: '',
@@ -112,6 +109,9 @@ module.exports = {
                 interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
                 connection.end();
                 console.log("Connection closed.");
+                setTimeout(() => {
+                  return interaction.deleteReply();
+                }, 5000);
               }
             });
           } else {
