@@ -112,6 +112,8 @@ module.exports = {
           })
           .catch(e => {
             interaction.editReply({ content: 'Deleting message..', embeds: [], components: [] });
+            connection.end();
+            console.log("Connection closed.");
             setTimeout(() => {
               interaction.deleteReply();
             }, 5000);
