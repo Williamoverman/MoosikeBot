@@ -87,14 +87,14 @@ module.exports = {
               if (confirmation.customId === 'ready') {
                 await confirmation.update({ content: `...`, components: [] });
                 fetch(apiLink)
-                .then(apiresponse => {
-                  if (!apiresponse.ok) {
+                .then(apiresponse2 => {
+                  if (!apiresponse2.ok) {
                     throw new Error('API request failed');
                   }
-                  return apiresponse.json();
+                  return apiresponse2.json();
                 })
-                .then(data => {
-                  if (data.profileIconId === 1) {
+                .then(data1 => {
+                  if (data1.profileIconId === 1) {
                     const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
                     const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
                     connection.query(insertUserQuery, userData, (err, result) => {
