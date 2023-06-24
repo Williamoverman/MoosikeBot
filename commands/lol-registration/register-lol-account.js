@@ -50,8 +50,10 @@ module.exports = {
           connection.end();
           console.log("Connection closed.");
           interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
-          setTimeout(5000);
-          interaction.deleteReply();
+          setTimeout(() => {
+            interaction.deleteReply();
+            console.log('Timeout has elapsed!');
+          }, 5000);
         } else {
           response = interaction.editReply({
             content: '',
