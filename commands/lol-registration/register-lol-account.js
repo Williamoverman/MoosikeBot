@@ -53,7 +53,9 @@ module.exports = {
         }
       });  
     });
-
+    connection.end();
+    console.log("Connection closed.");
+    
     const collectorFilter = i => i.user.id === interaction.user.id;
 
       try {
@@ -83,19 +85,23 @@ module.exports = {
         if (profileIconId == 1) {
           const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
               const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
-              connection.query(insertUserQuery, userData, (err, result) => {
-                if (err) {
-                  console.error('Error inserting data:', err);
-                  interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
-                  connection.end();
-                  console.log("Connection closed.");
-                } else {
-                  console.log('Data inserted successfully!');
-                  interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
-                  connection.end();
-                  console.log("Connection closed.");
-                }
+              connection.connect(err => {
+                connection.query(insertUserQuery, userData, (err, result) => {
+                  if (err) {
+                    console.error('Error inserting data:', err);
+                    interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
+                    connection.end();
+                    console.log("Connection closed.");
+                  } else {
+                    console.log('Data inserted successfully!');
+                    interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
+                    connection.end();
+                    console.log("Connection closed.");
+                  }
+                });
               });
+              connection.end();
+              console.log("Connection closed.");
         } else {
           interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
           connection.end();
