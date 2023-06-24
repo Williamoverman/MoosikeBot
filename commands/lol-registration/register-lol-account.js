@@ -60,6 +60,29 @@ module.exports = {
       });  
     })
 
+    var leagueUsername = interaction.options.getString('username');
+  
+    const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
+
+    fetch(apiLink)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+      return response.json();
+    })
+    .then(data => {
+        const profileIconId = data.profileIconId;
+        leagueUsername = data.name;
+        
+    })
+    .catch(error => {
+      console.error(error);
+      interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
+      connection.end();
+      console.log("Connection closed.");
+    });
+
     const collectorFilter = i => i.user.id === interaction.user.id;
 
       try {
@@ -67,51 +90,30 @@ module.exports = {
   
         if (confirmation.customId === 'ready') {
           await confirmation.update({ content: `...`, components: [] });
-          var leagueUsername = interaction.options.getString('username');
-  
-          const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
-      
-          fetch(apiLink)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('API request failed');
-            }
-            return response.json();
-          })
-          .then(data => {
-              const profileIconId = data.profileIconId;
-              leagueUsername = data.name;
-              if (profileIconId == 1) {
-                const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-                const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
-                connection.query(insertUserQuery, userData, (err, result) => {
-                  if (err) {
-                    console.error('Error inserting data:', err);
-                    interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
-                    connection.end();
-                    console.log("Connection closed.");
-                  } else {
-                    console.log('Data inserted successfully!');
-                    interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
-                    connection.end();
-                    console.log("Connection closed.");
-                    setTimeout(() => {
-                      return interaction.deleteReply();
-                    }, 5000);
-                  }
-                });
-              } else {
-                interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
+          if (profileIconId == 1) {
+            const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+            const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
+            connection.query(insertUserQuery, userData, (err, result) => {
+              if (err) {
+                console.error('Error inserting data:', err);
+                interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: []});
                 connection.end();
                 console.log("Connection closed.");
+              } else {
+                console.log('Data inserted successfully!');
+                interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: []});
+                connection.end();
+                console.log("Connection closed.");
+                setTimeout(() => {
+                  return interaction.deleteReply();
+                }, 5000);
               }
-          })
-          .catch(error => {
-            console.error(error);
-            interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
+            });
+          } else {
+            interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: []});
             connection.end();
             console.log("Connection closed.");
-          });
+          }
         } 
       } catch (e) {
         interaction.editReply({ content: 'Deleting message..', embeds: [], components: []});
