@@ -79,12 +79,6 @@ module.exports = {
             return response.json();
           })
           .then(data => {
-            if (data?.status?.status_code === 404) {
-              interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
-              connection.end();
-              console.log("Connection closed.");
-              return;
-            } else {
               const profileIconId = data.profileIconId;
               leagueUsername = data.name;
               if (profileIconId == 1) {
@@ -111,11 +105,10 @@ module.exports = {
                 connection.end();
                 console.log("Connection closed.");
               }
-            }
           })
           .catch(error => {
             console.error(error);
-            interaction.editReply({ content: 'Something went wrong with the API.', embeds: [], components: []});
+            interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
             connection.end();
             console.log("Connection closed.");
           });
