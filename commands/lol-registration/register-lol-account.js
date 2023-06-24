@@ -47,10 +47,11 @@ module.exports = {
           return;
         }
         if (results.length != 0) {
-          interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
           connection.end();
           console.log("Connection closed.");
-          return;
+          interaction.editReply({ content: 'Already registered.', embeds: [], components: []}).then(msg => {
+            setTimeout(() => msg.delete(), 10000);
+          });
         } else {
           response = interaction.editReply({
             content: '',
