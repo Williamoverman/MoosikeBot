@@ -13,7 +13,7 @@ module.exports = {
         .setRequired(true)),
   async execute(interaction) {
     var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true });
-    
+
     var leagueUsername = interaction.options.getString('username');
     var profileIconId = 0;
     const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`;
@@ -28,7 +28,7 @@ module.exports = {
       .then(data => {
         profileIconId = data.profileIconId;
         leagueUsername = data.name;
-        
+
         const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account, change your profile picture in LoL to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
         const discordUserID = interaction.user.id;
 
@@ -51,8 +51,9 @@ module.exports = {
           if (err) {
             console.error(err);
             interaction.editReply({ content: 'Something went wrong with the database connection :(', embeds: [], components: [] });
+            return;
           }
-          console.log('Connected to database!');
+          console.log('Connected to the database!');
 
           const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
           connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
@@ -60,13 +61,13 @@ module.exports = {
               console.error('Error executing query:', err);
               return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
             }
-            if (results.length != 0) {
+            if (results.length !== 0) {
               connection.end();
               console.log("Connection closed.");
               interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
               setTimeout(() => {
-                  return interaction.deleteReply();
-                }, 5000);
+                return interaction.deleteReply();
+              }, 5000);
             } else {
               response = interaction.editReply({
                 content: '',
@@ -83,7 +84,7 @@ module.exports = {
           .then(async confirmation => {
             if (confirmation.customId === 'ready') {
               await confirmation.update({ content: `...`, components: [] });
-              if (profileIconId == 1) {
+              if (profileIconId === 1) {
                 const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
                 const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
                 connection.query(insertUserQuery, userData, (err, result) => {
