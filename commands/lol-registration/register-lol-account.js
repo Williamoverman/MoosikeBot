@@ -36,7 +36,7 @@ module.exports = {
     connection.connect(err => {
       if (err) {
         console.error(err);
-        interaction.editReply({ content: 'Something went wrong with the database connnection :(', embeds: [], components: []});
+        return interaction.editReply({ content: 'Something went wrong with the database connnection :(', embeds: [], components: []});
       }
       console.log('Connected to database!');
     
@@ -44,15 +44,14 @@ module.exports = {
       connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
         if (err) {
           console.error('Error executing query:', err);
-          return;
+          return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: []});;
         }
         if (results.length != 0) {
           connection.end();
           console.log("Connection closed.");
           interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
           setTimeout(() => {
-            interaction.deleteReply();
-            console.log('Timeout has elapsed!');
+            return interaction.deleteReply();
           }, 5000);
         } else {
           response = interaction.editReply({
@@ -60,22 +59,23 @@ module.exports = {
             embeds: [lolEmbed],
             components: [row],
           });
+          
+          const collectorFilter = i => i.user.id === interaction.user.id;
+
+          try {
+            const confirmation = response.awaitMessageComponent({ filter: collectorFilter, time: 180_000 });
+      
+            if (confirmation.customId === 'ready') {
+            confirmation.update({ content: `...`, components: [] });
+            } 
+          } catch (e) {
+            connection.end();
+            console.log("Connection closed.");
+            return interaction.editReply({ content: 'Confirmation not received within 3 minutes, cancelling...', embeds: [], components: []});
+          }
         }
       });  
     })
-
-    const collectorFilter = i => i.user.id === interaction.user.id;
-
-      try {
-        const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 180_000 });
-  
-        if (confirmation.customId === 'ready') {
-          await confirmation.update({ content: `...`, components: [] });
-        } 
-      } catch (e) {
-        await interaction.editReply({ content: 'Confirmation not received within 3 minutes, cancelling...', embeds: [], components: []});
-        return;
-      }
   
       var leagueUsername = interaction.options.getString('username');
   
@@ -90,10 +90,9 @@ module.exports = {
       })
       .then(data => {
         if (data.status.status_code = 404) {
-          interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
           connection.end();
           console.log("Connection closed.");
-          return;
+          return interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
         } else {
           const profileIconId = data.profileIconId;
           leagueUsername = data.name;
