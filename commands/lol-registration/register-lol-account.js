@@ -1,165 +1,133 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
 const mysql = require('mysql');
 const fetch = require('isomorphic-fetch');
-require("dotenv").config();
+require('dotenv').config();
 
-module.exports = {
-  data: new SlashCommandBuilder()
-    .setName('register')
-    .setDescription('Register your LoL account!')
-    .addStringOption(option =>
-      option.setName('username')
-        .setDescription('Your LoL username!')
-        .setRequired(true)),
-  async execute(interaction) {
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.MESSAGE_CONTENTS] });
+
+client.once('ready', () => {
+  console.log('Bot is ready!');
+});
+
+client.on('interactionCreate', async (interaction) => {
+  if (!interaction.isCommand()) return;
+
+  const { commandName, options, user, reply } = interaction;
+  if (commandName === 'register') {
+    const leagueUsername = options.getString('username');
+
     try {
-      var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true });
-
-      var leagueUsername = interaction.options.getString('username');
       const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`;
-  
-      fetch(apiLink)
-        .then(apiresponse => {
-          if (!apiresponse.ok) {
-            throw new Error('API request failed');
+
+      const apiResponse = await fetch(apiLink);
+      if (!apiResponse.ok) {
+        throw new Error('API request failed');
+      }
+      const data = await apiResponse.json();
+      const leagueUsername = data.name;
+
+      const lolEmbed = new MessageEmbed()
+        .setColor('#0099FF')
+        .setDescription('To confirm this is your LoL account, change your profile picture in LoL to this picture')
+        .setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
+      const discordUserID = user.id;
+
+      const readyButton = new MessageButton()
+        .setCustomId('ready')
+        .setLabel('Ready')
+        .setStyle('PRIMARY');
+
+      const row = new MessageActionRow()
+        .addComponents(readyButton);
+
+      const connection = mysql.createConnection({
+        host: process.env.DATABASEHOST,
+        user: process.env.DATABASEUSER,
+        password: process.env.DATABASEPASSWORD,
+        database: process.env.DATABASENAME,
+      });
+
+      connection.connect((err) => {
+        if (err) {
+          console.error(err);
+          reply({ content: 'Something went wrong with the database connection :(', ephemeral: true });
+          return;
+        }
+        console.log('Connected to the database!');
+
+        const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
+        connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
+          if (err) {
+            console.error('Error executing query:', err);
+            return reply({ content: 'Something went wrong with the query.', ephemeral: true });
           }
-          return apiresponse.json();
-        })
-        .then(data => {
-          leagueUsername = data.name;
-  
-          const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account, change your profile picture in LoL to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
-          const discordUserID = interaction.user.id;
-  
-          const ready = new ButtonBuilder()
-            .setCustomId('ready')
-            .setLabel('Ready')
-            .setStyle(ButtonStyle.Primary);
-  
-          const row = new ActionRowBuilder()
-            .addComponents(ready);
-  
-          const connection = mysql.createConnection({
-            host: process.env.DATABASEHOST,
-            user: process.env.DATABASEUSER,
-            password: process.env.DATABASEPASSWORD,
-            database: process.env.DATABASENAME
-          });
-  
-          let connectionClosed = false; // Flag to track if the connection is closed
-  
-          connection.connect(err => {
-            if (err) {
-              console.error(err);
-              interaction.editReply({ content: 'Something went wrong with the database connection :(', embeds: [], components: [] });
-              return;
+          if (results.length !== 0) {
+            connection.end();
+            console.log('Connection closed.');
+            reply({ content: 'Already registered.', ephemeral: true });
+            setTimeout(() => {
+              interaction.deleteReply();
+            }, 5000);
+          } else {
+            reply({ embeds: [lolEmbed], components: [row] });
+          }
+        });
+      });
+
+      const collectorFilter = (i) => i.user.id === user.id;
+
+      interaction.awaitMessageComponent({ filter: collectorFilter, time: 90000 })
+        .then(async (confirmation) => {
+          if (confirmation.customId === 'ready') {
+            await confirmation.update({ content: '...', components: [] });
+
+            const apiResponse2 = await fetch(apiLink);
+            if (!apiResponse2.ok) {
+              throw new Error('API request failed');
             }
-            console.log('Connected to the database!');
-  
-            const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
-            connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
-              if (err) {
-                console.error('Error executing query:', err);
-                return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
-              }
-              if (results.length !== 0) {
+            const data1 = await apiResponse2.json();
+
+            if (data1.profileIconId === 1) {
+              const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+              const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
+              connection.query(insertUserQuery, userData, (err, result) => {
+                if (err) {
+                  console.error('Error inserting data:', err);
+                  reply({ content: 'Something went wrong with registering :(', ephemeral: true });
+                } else {
+                  console.log('Data inserted successfully!');
+                  reply({ content: 'Thank you for registering! :)', ephemeral: true });
+                }
                 connection.end();
-                console.log("Connection closed.");
-                connectionClosed = true; // Set the flag to true
-                interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
+                console.log('Connection closed.');
                 setTimeout(() => {
-                  return interaction.deleteReply();
+                  interaction.deleteReply();
                 }, 5000);
-              } else {
-                response = interaction.editReply({
-                  content: '',
-                  embeds: [lolEmbed],
-                  components: [row],
-                });
-              }
-            });
-          });
-  
-          const collectorFilter = i => i.user.id === interaction.user.id;
-  
-          response.awaitMessageComponent({ filter: collectorFilter, time: 90_000 })
-            .then(async confirmation => {
-              if (confirmation.customId === 'ready') {
-                await confirmation.update({ content: `...`, components: [] });
-                fetch(apiLink)
-                .then(apiresponse2 => {
-                  if (!apiresponse2.ok) {
-                    throw new Error('API request failed');
-                  }
-                  return apiresponse2.json();
-                })
-                .then(data1 => {
-                  if (data1.profileIconId === 1) {
-                    const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-                    const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
-                    connection.query(insertUserQuery, userData, (err, result) => {
-                      if (err) {
-                        console.error('Error inserting data:', err);
-                        interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
-                      } else {
-                        console.log('Data inserted successfully!');
-                        interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
-                      }
-                      if (!connectionClosed) { // Check the flag before closing the connection
-                        connection.end();
-                        console.log("Connection closed.");
-                      }
-                      setTimeout(() => {
-                        return interaction.deleteReply();
-                      }, 5000);
-                    });
-                  } else {
-                    interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
-                    if (!connectionClosed) { // Check the flag before closing the connection
-                      connection.end();
-                      console.log("Connection closed.");
-                    }
-                    setTimeout(() => {
-                      return interaction.deleteReply();
-                    }, 5000);
-                  }
-                }).catch(error => {
-                  console.error(error);
-                });
-              }
-            })
-            .catch(e => {
-              interaction.editReply({ content: 'Deleting message..', embeds: [], components: [] });
-              if (!connectionClosed) { // Check the flag before closing the connection
-                connection.end();
-                console.log("Connection closed.");
-              }
+              });
+            } else {
+              reply({ content: 'Incorrect profile picture.', ephemeral: true });
+              connection.end();
+              console.log('Connection closed.');
               setTimeout(() => {
                 interaction.deleteReply();
               }, 5000);
-            });
+            }
+          }
         })
-        .catch(error => {
-          console.error(error);
-          interaction.editReply({ content: 'No summoner found.', embeds: [], components: [] });
+        .catch((e) => {
+          reply({ content: 'Deleting message...', ephemeral: true });
+          connection.end();
+          console.log('Connection closed.');
           setTimeout(() => {
-            return interaction.deleteReply();
+            interaction.deleteReply();
           }, 5000);
         });
     } catch (error) {
       if (error.code === 10008) {
-        /*if (!connectionClosed) { // Check the flag before closing the connection
-          connection.end();
-          console.log("Connection closed.");
-        }*/
         console.error('The message could not be found or identified.');
-        /*interaction.editReply({ content: 'No response. Deleting message.', embeds: [], components: [] });
-          setTimeout(() => {
-            return interaction.deleteReply();
-          }, 5000);*/
       } else {
         console.error(error);
       }
     }
-  },
-};
+  }
+});
