@@ -73,7 +73,7 @@ module.exports = {
           console.error('Error executing query:', err);
           return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: []});;
         }
-        if (results.length != 0 && closedConnectionOnApiFailure == true) {
+        if (results.length != 0 && closedConnectionOnApiFailure == false) {
           connection.end();
           console.log("Connection closed.");
           interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
