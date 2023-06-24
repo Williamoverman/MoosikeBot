@@ -74,7 +74,7 @@ module.exports = {
         return;
       }
   
-      const leagueUsername = interaction.options.getString('username');
+      var leagueUsername = interaction.options.getString('username');
   
       const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
   
@@ -87,6 +87,7 @@ module.exports = {
       })
       .then(data => {
         const profileIconId = data.profileIconId;
+        leagueUsername = data.name;
         if (profileIconId == 1) {
           const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
           const insertUserQuery = 'INSERT INTO LoLregistration SET ?'
