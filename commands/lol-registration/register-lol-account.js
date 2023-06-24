@@ -14,7 +14,8 @@ module.exports = {
   async execute(interaction) {
     
     var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true});
-
+    
+    var closedConnectionOnApiFailure = false;
     var leagueUsername = interaction.options.getString('username');
     var profileIconId = 0;
     const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
@@ -25,7 +26,7 @@ module.exports = {
       password: process.env.DATABASEPASSWORD,
       database: process.env.DATABASENAME
     });
-    
+
     fetch(apiLink)
     .then(response => {
       if (!response.ok) {
@@ -40,6 +41,7 @@ module.exports = {
     .catch(error => {
       console.error(error);
       interaction.editReply({ content: 'No summonerer found.', embeds: [], components: []});
+      closedConnectionOnApiFailure = true;
       connection.end();
       console.log("Connection closed.");
       setTimeout(() => {
@@ -71,7 +73,7 @@ module.exports = {
           console.error('Error executing query:', err);
           return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: []});;
         }
-        if (results.length != 0) {
+        if (results.length != 0 && closedConnectionOnApiFailure == true) {
           connection.end();
           console.log("Connection closed.");
           interaction.editReply({ content: 'Already registered.', embeds: [], components: []});
