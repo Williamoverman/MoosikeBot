@@ -15,6 +15,10 @@ module.exports = {
     
     var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true});
 
+    var leagueUsername = interaction.options.getString('username');
+    var profileIconId = 0;
+    const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
+
     const connection = mysql.createConnection({
       host: process.env.DATABASEHOST,
       user: process.env.DATABASEUSER,
@@ -22,10 +26,6 @@ module.exports = {
       database: process.env.DATABASENAME
     });
     
-    var leagueUsername = interaction.options.getString('username');
-    var profileIconId = 0;
-    const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`
-
     fetch(apiLink)
     .then(response => {
       if (!response.ok) {
