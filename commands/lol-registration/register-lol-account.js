@@ -86,48 +86,62 @@ module.exports = {
               if (confirmation.customId === 'ready') {
                 await confirmation.update({ content: `...`, components: [] });
                 setTimeout(() => {
-                  fetch(apiLink)
-                .then(apiresponse2 => {
-                  if (!apiresponse2.ok) {
-                    throw new Error('API request failed');
-                  }
-                  return apiresponse2.json();
-                  })
-                  .then(data1 => {
-                    if (data1.profileIconId === randomIcon) {
-                      const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-                      const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
-                      connection.query(insertUserQuery, userData, (err, result) => {
-                        if (err) {
-                          console.error('Error inserting data:', err);
-                          interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
-                          setTimeout(() => {
-                            return interaction.deleteReply();
-                          }, 5000);
-                        } else {
-                          console.log('Data inserted successfully!');
-                          interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
-                          setTimeout(() => {
-                            return interaction.deleteReply();
-                          }, 5000);
-                        }
-                        if (!connectionClosed) { // Check the flag before closing the connection
-                          connection.end();
-                          console.log("Connection closed.");
-                        }
-                      });
-                    } else {
-                      interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
+                  connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
+                    if (err) {
+                      console.error('Error executing query:', err);
+                      return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
+                    }
+                    if (results.length !== 0) {
+                      interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
                       if (!connectionClosed) { // Check the flag before closing the connection
                         connection.end();
                         console.log("Connection closed.");
-                        setTimeout(() => {
-                          return interaction.deleteReply();
-                        }, 5000);
                       }
+                    } else {
+                      fetch(apiLink)
+                      .then(apiresponse2 => {
+                      if (!apiresponse2.ok) {
+                        throw new Error('API request failed');
+                      }
+                      return apiresponse2.json();
+                      })
+                      .then(data1 => {
+                        if (data1.profileIconId === randomIcon) {
+                          const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+                          const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
+                          connection.query(insertUserQuery, userData, (err, result) => {
+                            if (err) {
+                              console.error('Error inserting data:', err);
+                              interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
+                              setTimeout(() => {
+                                return interaction.deleteReply();
+                              }, 5000);
+                            } else {
+                              console.log('Data inserted successfully!');
+                              interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
+                              setTimeout(() => {
+                                return interaction.deleteReply();
+                              }, 5000);
+                            }
+                            if (!connectionClosed) { // Check the flag before closing the connection
+                              connection.end();
+                              console.log("Connection closed.");
+                            }
+                          });
+                        } else {
+                          interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
+                          if (!connectionClosed) { // Check the flag before closing the connection
+                            connection.end();
+                            console.log("Connection closed.");
+                            setTimeout(() => {
+                              return interaction.deleteReply();
+                            }, 5000);
+                          }
+                        }
+                      }).catch(error => {
+                        console.error(error);
+                      });
                     }
-                  }).catch(error => {
-                    console.error(error);
                   });
                 }, 2000);
               }
