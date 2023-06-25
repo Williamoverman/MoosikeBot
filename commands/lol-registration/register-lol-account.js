@@ -15,6 +15,7 @@ module.exports = {
     try {
       var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true });
 
+      var randomIcon = randomNumber(0, 28);
       var leagueUsername = interaction.options.getString('username');
       const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`;
   
@@ -29,7 +30,7 @@ module.exports = {
         .then(data => {
           leagueUsername = data.name;
   
-          const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account, change your profile picture in LoL to this picture').setImage('http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/1.png');
+          const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account, change your profile picture in LoL to this picture').setImage(`http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/${randomIcon}.png`);
           const discordUserID = interaction.user.id;
   
           const ready = new ButtonBuilder()
@@ -84,49 +85,51 @@ module.exports = {
             .then(async confirmation => {
               if (confirmation.customId === 'ready') {
                 await confirmation.update({ content: `...`, components: [] });
-                fetch(apiLink)
+                setTimeout(() => {
+                  fetch(apiLink)
                 .then(apiresponse2 => {
                   if (!apiresponse2.ok) {
                     throw new Error('API request failed');
                   }
                   return apiresponse2.json();
-                })
-                .then(data1 => {
-                  if (data1.profileIconId === 1) {
-                    const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-                    const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
-                    connection.query(insertUserQuery, userData, (err, result) => {
-                      if (err) {
-                        console.error('Error inserting data:', err);
-                        interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
-                        setTimeout(() => {
-                          return interaction.deleteReply();
-                        }, 5000);
-                      } else {
-                        console.log('Data inserted successfully!');
-                        interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
-                        setTimeout(() => {
-                          return interaction.deleteReply();
-                        }, 5000);
-                      }
+                  })
+                  .then(data1 => {
+                    if (data1.profileIconId === randomIcon) {
+                      const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+                      const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
+                      connection.query(insertUserQuery, userData, (err, result) => {
+                        if (err) {
+                          console.error('Error inserting data:', err);
+                          interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
+                          setTimeout(() => {
+                            return interaction.deleteReply();
+                          }, 5000);
+                        } else {
+                          console.log('Data inserted successfully!');
+                          interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
+                          setTimeout(() => {
+                            return interaction.deleteReply();
+                          }, 5000);
+                        }
+                        if (!connectionClosed) { // Check the flag before closing the connection
+                          connection.end();
+                          console.log("Connection closed.");
+                        }
+                      });
+                    } else {
+                      interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
                       if (!connectionClosed) { // Check the flag before closing the connection
                         connection.end();
                         console.log("Connection closed.");
+                        setTimeout(() => {
+                          return interaction.deleteReply();
+                        }, 5000);
                       }
-                    });
-                  } else {
-                    interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
-                    if (!connectionClosed) { // Check the flag before closing the connection
-                      connection.end();
-                      console.log("Connection closed.");
-                      setTimeout(() => {
-                        return interaction.deleteReply();
-                      }, 5000);
                     }
-                  }
-                }).catch(error => {
-                  console.error(error);
-                });
+                  }).catch(error => {
+                    console.error(error);
+                  });
+                }, 2000);
               }
             })
             .catch(e => {
@@ -164,3 +167,7 @@ module.exports = {
     }
   },
 };
+
+function randomNumber(min, max) {
+  return Math.random() * (max - min) + min;
+}
