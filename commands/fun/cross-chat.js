@@ -1,9 +1,4 @@
-const { Client, GatewayIntentBits, SlashCommandBuilder } = require('discord.js');
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-    ]
-});
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,15 +8,6 @@ module.exports = {
             option.setName('message')
                 .setDescription('The message you want to send')),
     async execute(interaction) {
-        await client.guilds.fetch();
-
-        const guilds = client.guilds.cache;
-
-        guilds.forEach((guild) => {
-            console.log(`Guild Name: ${guild.name}`);
-            console.log(`Guild ID: ${guild.id}`);
-        });
-        
         await interaction.reply('hi');
     },
 };
