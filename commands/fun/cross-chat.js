@@ -1,9 +1,9 @@
-const { GatewayIntentBits, SlashCommandBuilder } = require('discord.js');
-const path = require('path');
-
-const index = require(path.join(__dirname, '../../index'));
-
-const client = index.client;
+const { Client, GatewayIntentBits, SlashCommandBuilder } = require('discord.js');
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+    ]
+});
 
 module.exports = {
     data: new SlashCommandBuilder()
