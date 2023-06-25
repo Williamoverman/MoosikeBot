@@ -15,19 +15,23 @@ module.exports = {
             option.setName('message')
                 .setDescription('The message you want to send')),
 	async execute(interaction) {
-		const guilds = client.guilds.cache;
-		const sendingGuild = interaction.guild;
-		const sendingChannel = interaction.channel;
+        const messageContent = interaction.options.getString('message');
 
-		const chatMessage = interaction.options.getString('message'); // Assuming you have a string option named 'message'
+        const targetServerId = process.env.TESTSERVERGUILDID;
 
-		guilds.forEach((guild) => {
-			if (guild !== sendingGuild) {
-				const targetChannel = guild.channels.cache.find((channel) => channel.name === 'cross-server-chat');
-				if (targetChannel) {
-					targetChannel.send(`[Cross-Server Chat] ${interaction.user.username}: ${chatMessage}`);
-				}
-			}
-		});
+        const targetServer = client.guilds.cache.get(targetServerId);
+        if (!targetServer) {
+            await interaction.reply('Invalid target server ID.');
+            return;
+        }
+
+        const targetChannel = targetServer.channels.cache.find(channel => channel.name === 'cross-server-chat' && channel.type === 'GUILD_TEXT');
+        if (!targetChannel) {
+            await interaction.reply('No "cross-server-chat" channel found in the target server.');
+            return;
+        }
+
+        await targetChannel.send(messageContent);
+        await interaction.reply('Message sent successfully!');
 	},
 };
