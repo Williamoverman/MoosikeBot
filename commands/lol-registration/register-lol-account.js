@@ -4,6 +4,7 @@ const fetch = require('isomorphic-fetch');
 require("dotenv").config();
 
 module.exports = {
+  cooldown: 10,
   data: new SlashCommandBuilder()
     .setName('register')
     .setDescription('Register your LoL account!')
