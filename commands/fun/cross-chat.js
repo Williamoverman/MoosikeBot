@@ -13,13 +13,15 @@ module.exports = {
             option.setName('message')
                 .setDescription('The message you want to send')),
     async execute(interaction) {
+        await client.guilds.fetch();
+
         const guilds = client.guilds.cache;
 
-        //check guilds
         guilds.forEach((guild) => {
             console.log(`Guild Name: ${guild.name}`);
             console.log(`Guild ID: ${guild.id}`);
         });
+        
         await interaction.reply('hi');
     },
 };
