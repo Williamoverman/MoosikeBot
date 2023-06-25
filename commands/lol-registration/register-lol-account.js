@@ -30,7 +30,7 @@ module.exports = {
           leagueUsername = data.name;
 
           var randomIcon = randomNumber(0, 28);
-          const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account, change your profile picture in LoL to this picture').setImage(`http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/${randomIcon}.png`);
+          const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account, change your profile picture in LoL to this picture').setThumbnail(`http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/${randomIcon}.png`);
           const discordUserID = interaction.user.id;
   
           const ready = new ButtonBuilder()
@@ -47,7 +47,7 @@ module.exports = {
             password: process.env.DATABASEPASSWORD,
             database: process.env.DATABASENAME
           });
-          
+
           const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
 
           let connectionClosed = false; // Flag to track if the connection is closed
@@ -98,6 +98,9 @@ module.exports = {
                         connection.end();
                         console.log("Connection closed.");
                       }
+                      setTimeout(() => {
+                        return interaction.deleteReply();
+                      }, 5000);
                     } else {
                       fetch(apiLink)
                       .then(apiresponse2 => {
