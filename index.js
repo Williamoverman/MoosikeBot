@@ -87,7 +87,10 @@ client.on(Events.InteractionCreate, async interaction => {
 
 		if (now < expirationTime) {
 			const expiredTimestamp = Math.round(expirationTime / 1000);
-			return interaction.reply({ content: `Please wait, you are on a cooldown for \`${command.data.name}\`. You can use it again <t:${expiredTimestamp}:R>.`, ephemeral: true });
+			interaction.reply({ content: `Please wait, you are on a cooldown for \`${command.data.name}\`. You can use it again <t:${expiredTimestamp}:R>.`, ephemeral: true });
+			setTimeout(() => {
+				return interaction.deleteReply();
+			}, 10000);
 		}
 	}
 
