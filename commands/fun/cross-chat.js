@@ -20,5 +20,6 @@ module.exports = {
             console.log(`Guild Name: ${guild.name}`);
             console.log(`Guild ID: ${guild.id}`);
         });
+        await interaction.reply('hi');
     },
 };
