@@ -15,7 +15,6 @@ module.exports = {
     try {
       var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true });
 
-      var randomIcon = randomNumber(0, 28);
       var leagueUsername = interaction.options.getString('username');
       const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`;
   
@@ -29,7 +28,9 @@ module.exports = {
         })
         .then(data => {
           leagueUsername = data.name;
-  
+
+          var randomIcon = randomNumber(0, 28);
+          console.log(randomIcon);
           const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account, change your profile picture in LoL to this picture').setImage(`http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/${randomIcon}.png`);
           const discordUserID = interaction.user.id;
   
