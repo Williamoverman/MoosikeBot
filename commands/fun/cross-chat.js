@@ -15,6 +15,8 @@ module.exports = {
             option.setName('message')
                 .setDescription('The message you want to send')),
     async execute(interaction) {
+        const Guilds = client.guilds.cache.map(guild => guild.id);
+        console.log(Guilds);
         const messageContent = interaction.options.getString('message');
 
         // Get the target server's ID
