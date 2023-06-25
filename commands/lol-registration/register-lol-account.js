@@ -30,7 +30,6 @@ module.exports = {
           leagueUsername = data.name;
 
           var randomIcon = randomNumber(0, 28);
-          console.log(randomIcon);
           const lolEmbed = new EmbedBuilder().setColor(0x0099FF).setDescription('To confirm this is your LoL account, change your profile picture in LoL to this picture').setImage(`http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/${randomIcon}.png`);
           const discordUserID = interaction.user.id;
   
@@ -170,5 +169,5 @@ module.exports = {
 };
 
 function randomNumber(min, max) {
-  return Math.random() * (max - min) + min;
+  return Math.round(Math.random() * (max - min) + min);
 }
