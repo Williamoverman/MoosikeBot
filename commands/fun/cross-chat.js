@@ -1,9 +1,5 @@
-const { Client, GatewayIntentBits, SlashCommandBuilder } = require('discord.js');
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-    ]
-});
+const { GatewayIntentBits, SlashCommandBuilder } = require('discord.js');
+const client = require('../index'); // Use the existing client instance from index.js
 
 module.exports = {
     data: new SlashCommandBuilder()
