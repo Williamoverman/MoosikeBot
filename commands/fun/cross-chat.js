@@ -15,6 +15,7 @@ module.exports = {
     async execute(interaction) {
         const guilds = client.guilds.cache;
 
+        //check guilds
         guilds.forEach((guild) => {
             console.log(`Guild Name: ${guild.name}`);
             console.log(`Guild ID: ${guild.id}`);
