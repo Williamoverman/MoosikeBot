@@ -8,6 +8,6 @@ module.exports = {
             option.setName('message')
                 .setDescription('The message you want to send')),
     async execute(interaction) {
-        await interaction.reply('hi');
+        await interaction.reply('hi!');
     },
 };
