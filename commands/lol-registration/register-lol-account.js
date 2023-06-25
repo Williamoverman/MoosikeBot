@@ -119,6 +119,9 @@ module.exports = {
                     if (!connectionClosed) { // Check the flag before closing the connection
                       connection.end();
                       console.log("Connection closed.");
+                      setTimeout(() => {
+                        return interaction.deleteReply();
+                      }, 5000);
                     }
                   }
                 }).catch(error => {
