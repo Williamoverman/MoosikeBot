@@ -1,5 +1,9 @@
 const { GatewayIntentBits, SlashCommandBuilder } = require('discord.js');
-const client = require('../index'); // Use the existing client instance from index.js
+const path = require('path');
+
+const index = require(path.join(__dirname, '../../index'));
+
+const client = index.client;
 
 module.exports = {
     data: new SlashCommandBuilder()
