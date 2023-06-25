@@ -17,7 +17,7 @@ module.exports = {
 	async execute(interaction) {
         const messageContent = interaction.options.getString('message');
 
-        const targetServerId = process.env.TESTSERVERGUILDID;
+        const targetServerId = 1121419451775078581;
 
         const targetServer = client.guilds.cache.get(targetServerId);
         if (!targetServer) {
