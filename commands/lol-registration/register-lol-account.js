@@ -47,7 +47,9 @@ module.exports = {
             password: process.env.DATABASEPASSWORD,
             database: process.env.DATABASENAME
           });
-  
+          
+          const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
+
           let connectionClosed = false; // Flag to track if the connection is closed
   
           connection.connect(err => {
@@ -58,7 +60,6 @@ module.exports = {
             }
             console.log('Connected to the database!');
   
-            const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
             connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
               if (err) {
                 console.error('Error executing query:', err);
