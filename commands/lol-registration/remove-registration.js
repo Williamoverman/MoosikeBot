@@ -113,10 +113,9 @@ module.exports = {
               }
             });
           } else if (confirmation.customId === 'cancel') {
-            interaction.editReply({ content: 'Cancelling...', components: [] });
             console.log("Connection closed.");
             connection.end();
-            return interaction.deleteReply();
+            interaction.deleteReply();
           }
         })
         .catch(e => {
