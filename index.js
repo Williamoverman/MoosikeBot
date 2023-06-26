@@ -100,23 +100,6 @@ client.on(Events.InteractionCreate, async interaction => {
 	timestamps.set(interaction.user.id, now);
 	setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
-	const logEmbed = new EmbedBuilder()
-	.setColor(0x0099FF)
-	.setTitle(`The executed command name: ${interaction.commandName}`)
-	.setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
-	.setTimestamp()
-	
-	const channelName = 'logs';
-
-	const guild = interaction.guild;
-	const channel = guild.channels.cache.find(ch => ch.name === channelName);
-
-	if (!channel) {
-	  console.log(`Channel "${channelName}" not found.`);
-	}
-
-	channel.send(logEmbed);
-
 	try {
 		await command.execute(interaction);
 	} catch (error) {
