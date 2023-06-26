@@ -55,6 +55,10 @@ module.exports = {
   
           connection.connect(err => {
             if (err) {
+              if (!connectionClosed) { // Check the flag before closing the connection
+                connection.end();
+                console.log("Connection closed.");
+              }
               console.error(err);
               interaction.editReply({ content: 'Something went wrong with the database connection :(', embeds: [], components: [] });
               return;
@@ -63,6 +67,10 @@ module.exports = {
   
             connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
               if (err) {
+                if (!connectionClosed) { // Check the flag before closing the connection
+                  connection.end();
+                  console.log("Connection closed.");
+                }
                 console.error('Error executing query:', err);
                 return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
               }
@@ -91,6 +99,10 @@ module.exports = {
                   connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
                     if (err) {
                       console.error('Error executing query:', err);
+                      if (!connectionClosed) { // Check the flag before closing the connection
+                        connection.end();
+                        console.log("Connection closed.");
+                      }
                       return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
                     }
                     if (results.length !== 0) {
@@ -116,6 +128,10 @@ module.exports = {
                           const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
                           connection.query(insertUserQuery, userData, (err, result) => {
                             if (err) {
+                              if (!connectionClosed) { // Check the flag before closing the connection
+                                connection.end();
+                                console.log("Connection closed.");
+                              }
                               console.error('Error inserting data:', err);
                               interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
                               setTimeout(() => {

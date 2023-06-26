@@ -39,6 +39,10 @@ module.exports = {
   
         connection.connect(err => {
           if (err) {
+            if (!connectionClosed) { // Check the flag before closing the connection
+                connection.end();
+                console.log("Connection closed.");
+            }
             console.error(err);
             interaction.editReply({ content: 'Something went wrong with the database connection :(', embeds: [], components: [] });
             return;
@@ -47,11 +51,16 @@ module.exports = {
   
           connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
             if (err) {
+                if (!connectionClosed) { // Check the flag before closing the connection
+                    connection.end();
+                    console.log("Connection closed.");
+                }
               console.error('Error executing query:', err);
               return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
             }
             if (results.length === 0) {
               console.log("Connection closed.");
+              connection.end();
               connectionClosed = true; // Set the flag to true
               interaction.editReply({ content: 'Not yet registered.', embeds: [], components: [] });
             } else {
@@ -83,10 +92,14 @@ module.exports = {
                   setTimeout(() => {
                     return interaction.deleteReply();
                   }, 5000);
-                } else {
-                  const deleteRegistrationQuery = "DELETE FROM LoLregistration WHERE discordID = ?"
-                  connection.query(deleteRegistrationQuery, [discordUserID], (err, results) => {
+                } 
+                const deleteRegistrationQuery = "DELETE FROM LoLregistration WHERE discordID = ?"
+                connection.query(deleteRegistrationQuery, [discordUserID], (err, results) => {
                     if (err) {
+                        if (!connectionClosed) { // Check the flag before closing the connection
+                            connection.end();
+                            console.log("Connection closed.");
+                        }
                       console.error('Error executing query:', err);
                       return interaction.editReply({ content: 'Something went wrong with the query.', components: [] });
                     }
@@ -109,7 +122,6 @@ module.exports = {
                   setTimeout(() => {
                     return interaction.deleteReply();
                   }, 5000);
-                }
               });
             } else if (confirmation.customId === 'cancel') {
               interaction.editReply({ content: 'Cancelling...', components: [] });
