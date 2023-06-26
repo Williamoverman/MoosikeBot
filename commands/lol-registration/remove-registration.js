@@ -56,7 +56,7 @@ module.exports = {
             console.log("Connection closed.");
             connection.end();
             connectionClosed = true; // Set the flag to true
-            //logInfo('Blocked', 'Not yet registered', `${discordUsername} is not yet registered`);
+            logInfo('Blocked', 'Not yet registered', `${discordUsername} is not yet registered`);
             interaction.editReply({ content: 'Not yet registered.', embeds: [], components: [] });
           } else {
             response = interaction.editReply({
@@ -81,7 +81,7 @@ module.exports = {
                 return;
               }
               if (results1.length === 0) {
-                //logInfo('Failed', 'Already unregistered', `${discordUsername} was already unregistered`);
+                logInfo('Failed', 'Already unregistered', `${discordUsername} was already unregistered`);
                 interaction.editReply({ content: 'Already unregistered.', components: [] });
                 console.log("Connection closed.");
                 connection.end();
@@ -97,7 +97,7 @@ module.exports = {
                     connection.end(); // Close connection on error
                     return;
                   } 
-                  //logInfo('Success', 'Successfully unregistered', `${discordUsername} Successfully unregistered`);
+                  logInfo('Success', 'Successfully unregistered', `${discordUsername} Successfully unregistered`);
                     interaction.editReply({ content: 'Successfully unregistered', components: [] });
                     console.log("Connection closed.");
                     connection.end();
@@ -114,7 +114,7 @@ module.exports = {
           }
         })
         .catch(e => {
-        //logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`);
+        logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`);
           interaction.editReply({ content: 'Deleting message...', components: [] });
           if (!connectionClosed) { // Check the flag before closing the connection
             connection.end();
@@ -131,30 +131,31 @@ module.exports = {
         console.error(error);
       }
     }
-    function logInfo(status, title, msg) {
-        const logEmbed = new EmbedBuilder()
-        .setColor(0x0099FF)
-        .setTitle(`${status}: ${title}`)
-        .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
-        .setTimestamp()
-        .setFooter({ text: `The executed command name: ${interaction.commandName}` });
-    
-        if (msg) {
-            logEmbed.setDescription(msg);
-        } else {
-            logEmbed.setDescription('No message provided');
-        }
-        
-        const channelName = 'logs';
-    
-        const guild = interaction.guild;
-        const channel = guild.channels.cache.find(ch => ch.name === channelName);
-    
-        if (!channel) {
-          console.log(`Channel "${channelName}" not found.`);
-        }
-    
-        channel.send(logEmbed);
-    }
   }
 };
+
+function logInfo(status, title, msg) {
+    const logEmbed = new EmbedBuilder()
+    .setColor(0x0099FF)
+    .setTitle(`${status}: ${title}`)
+    .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
+    .setTimestamp()
+    .setFooter({ text: `The executed command name: ${interaction.commandName}` });
+
+    if (msg) {
+        logEmbed.setDescription(msg);
+    } else {
+        logEmbed.setDescription('No message provided');
+    }
+    
+    const channelName = 'logs';
+
+    const guild = interaction.guild;
+    const channel = guild.channels.cache.find(ch => ch.name === channelName);
+
+    if (!channel) {
+      console.log(`Channel "${channelName}" not found.`);
+    }
+
+    channel.send(logEmbed);
+  }
