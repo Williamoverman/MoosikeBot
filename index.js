@@ -129,9 +129,9 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 		console.log('Connected to the database!');
 
-		const searchForExistingGuild = 'SELECT * FROM serverSettings WHERE logsEnabled = ?';
+		const searchForExistingGuild = 'SELECT * FROM serverSettings WHERE logsEnabled = ? AND guildID = ?';
 
-		connection.query(searchForExistingGuild, [1], (err, results) => {
+		connection.query(searchForExistingGuild, [1, interaction.guildId], (err, results) => {
 			if (err) {
 				connection.end();
 				console.log("Connection closed.");
@@ -145,7 +145,7 @@ client.on(Events.InteractionCreate, async interaction => {
 				.setTimestamp()
 				.setFooter({ text: `The executed command name: /${interaction.commandName}` });
 
-				const channelName = 'logs';
+				const channelName = results.logsChannel;
 
 				const guild = interaction.guild;
 				const channel = guild.channels.cache.find(ch => ch.name === channelName);
