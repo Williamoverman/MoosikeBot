@@ -133,10 +133,11 @@ module.exports = {
     }
 
     function logInfo(status, title, msg) {
+        let dcName = interaction.user.username;
         const logEmbed = new EmbedBuilder()
         .setColor(0x0099FF)
         .setTitle(`${status}: ${title}`)
-        .setAuthor(`${interaction.user.username}`)
+        .setAuthor(dcName)
         .setDescription(msg)
         .setTimestamp()
         .setFooter(`The executed command name: ${interaction.commandName}`);
