@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const fetch = require('isomorphic-fetch');
+const mysql = require('mysql');
 const { EmbedBuilder, REST, Routes, Client, Collection, Events, GatewayIntentBits, ActivityType } = require('discord.js');
 require("dotenv").config();
 
@@ -100,24 +101,6 @@ client.on(Events.InteractionCreate, async interaction => {
 	timestamps.set(interaction.user.id, now);
 	setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
-	const logEmbed = new EmbedBuilder()
-      .setColor(0x0099FF)
-      .setTitle(`${interaction.user.username} used /${interaction.commandName}`)
-      .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
-      .setTimestamp()
-      .setFooter({ text: `The executed command name: /${interaction.commandName}` });
-      
-    const channelName = 'logs';
-  
-    const guild = interaction.guild;
-    const channel = guild.channels.cache.find(ch => ch.name === channelName);
-  
-    if (!channel) {
-    	console.log(`Channel "${channelName}" not found.`);
-    }
-  
-    channel.send({ embeds: [logEmbed] });
-
 	try {
 		await command.execute(interaction);
 	} catch (error) {
@@ -129,5 +112,54 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 })
+
+client.on(Events.InteractionCreate, async interaction => {
+	const connection = mysql.createConnection({
+		host: process.env.DATABASEHOST,
+		user: process.env.DATABASEUSER,
+		password: process.env.DATABASEPASSWORD,
+		database: process.env.DATABASENAME
+	  });
+
+	  connection.connect(err => {
+		if (err) {
+			connection.end();
+			console.log("Connection closed.");
+		  console.error(err);
+		}
+		console.log('Connected to the database!');
+
+		const searchForExistingGuild = 'SELECT * FROM serverSettings WHERE logsEnabled = ?';
+
+		connection.query(searchForExistingGuild, [1], (err, results) => {
+			if (err) {
+				connection.end();
+				console.log("Connection closed.");
+			  console.error('Error executing query:', err);
+			}
+			if (results !== 0) {
+				const logEmbed = new EmbedBuilder()
+				.setColor(0x0099FF)
+				.setTitle(`${interaction.user.username} used /${interaction.commandName}`)
+				.setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
+				.setTimestamp()
+				.setFooter({ text: `The executed command name: /${interaction.commandName}` });
+
+				const channelName = 'logs';
+
+				const guild = interaction.guild;
+				const channel = guild.channels.cache.find(ch => ch.name === channelName);
+
+				if (!channel) {
+				console.log(`Channel "${channelName}" not found.`);
+				}
+
+				channel.send({ embeds: [logEmbed] });
+				connection.end();
+				console.log("Connection closed.");
+			}
+		});
+	  });
+});
 
 client.login(process.env.TOKEN);

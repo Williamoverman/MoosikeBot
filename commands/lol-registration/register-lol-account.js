@@ -65,7 +65,7 @@ module.exports = {
               return;
             }
             console.log('Connected to the database!');
-  
+
             connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
               if (err) {
                 if (!connectionClosed) { // Check the flag before closing the connection
