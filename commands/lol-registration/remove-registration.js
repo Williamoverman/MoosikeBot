@@ -11,6 +11,7 @@ module.exports = {
     try {
       var response = await interaction.reply({ content: '...', components: [], ephemeral: true });
       const discordUserID = interaction.user.id;
+      var discordUsername = interaction.user.username;
 
       const unregister = new ButtonBuilder()
         .setCustomId('unregister')
