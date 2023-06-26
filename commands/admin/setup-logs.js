@@ -50,9 +50,9 @@ module.exports = {
                       }, 5000);
                     }
                     if (results.length === 0) {
-                        const insertLogInfo = 'INSERT INTO serverSettings (guildID, logsEnabled, logsChannel) VALUES (?, ?, ?)';
+                        const insertLogInfo = 'INSERT INTO serverSettings (guildID, logsEnabled, logsChannel, roleNeeded) VALUES (?, ?, ?, ?)';
     
-                        connection.query(insertLogInfo, [interaction.guildId, interaction.options.getBoolean('enablelogs'), interaction.options.getString('logchannel')], (err) => {
+                        connection.query(insertLogInfo, [interaction.guildId, interaction.options.getBoolean('enablelogs'), interaction.options.getString('logchannel'), desiredRole], (err) => {
                           if (err) {
                             connection.end();
                             console.log("Connection closed.");
@@ -70,9 +70,9 @@ module.exports = {
                           }, 5000);
                         });
                     } else {
-                        const updateLogInfo = 'UPDATE serverSettings SET logsEnabled = ?, logsChannel = ? WHERE guildID = ?';
+                        const updateLogInfo = 'UPDATE serverSettings SET logsEnabled = ?, logsChannel = ?, roleNeeded = ? WHERE guildID = ?';
     
-                        connection.query(updateLogInfo, [interaction.options.getBoolean('enablelogs'), interaction.options.getString('logchannel'), interaction.guildId], (err) => {
+                        connection.query(updateLogInfo, [interaction.options.getBoolean('enablelogs'), interaction.options.getString('logchannel'), desiredRole, interaction.guildId], (err) => {
                           if (err) {
                             connection.end();
                             console.log("Connection closed.");
