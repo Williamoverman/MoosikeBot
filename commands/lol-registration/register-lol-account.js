@@ -16,7 +16,7 @@ module.exports = {
     try {
       var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true });
 
-      var discordUsername = interaction.user.username;
+      let discordUsername = interaction.user.username;
       var leagueUsername = interaction.options.getString('username');
       const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`;
   
@@ -207,30 +207,29 @@ module.exports = {
         console.error(error);
       }
     }
+    function logInfo(status, title, msg) {
+        const logEmbed = new EmbedBuilder()
+        .setColor(0x0099FF)
+        .setTitle(`${status}: ${title}`)
+        .setAuthor(discordUsername)
+        .setDescription(msg)
+        .setTimestamp()
+        .setFooter(`The executed command name: ${interaction.commandName}`);
+    
+        const channelName = 'logs';
+    
+        const guild = interaction.guild;
+        const channel = guild.channels.cache.find(ch => ch.name === channelName);
+    
+        if (!channel) {
+          console.log(`Channel "${channelName}" not found.`);
+        }
+    
+        channel.send(logEmbed);
+    }
   },
 };
 
 function randomNumber(min, max) {
   return Math.round(Math.random() * (max - min) + min);
-}
-
-function logInfo(status, title, msg) {
-    const logEmbed = new EmbedBuilder()
-    .setColor(0x0099FF)
-    .setTitle(`${status}: ${title}`)
-    .setAuthor(discordUsername)
-    .setDescription(msg)
-    .setTimestamp()
-    .setFooter(`The executed command name: ${interaction.commandName}`);
-
-    const channelName = 'logs';
-
-    const guild = interaction.guild;
-    const channel = guild.channels.cache.find(ch => ch.name === channelName);
-
-    if (!channel) {
-      console.log(`Channel "${channelName}" not found.`);
-    }
-
-    channel.send(logEmbed);
 }
