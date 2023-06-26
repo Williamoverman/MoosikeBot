@@ -33,6 +33,8 @@ module.exports = {
         database: process.env.DATABASENAME
       });
 
+      let connectionClosed = false; // Flag to track if the connection is closed
+
       const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
 
       connection.connect(err => {
@@ -47,12 +49,13 @@ module.exports = {
           if (err) {
             console.error('Error executing query:', err);
             interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
-            connection.end();
+            connection.end(); // Close connection on error
             return;
           }
           if (results.length === 0) {
             console.log("Connection closed.");
             connection.end();
+            connectionClosed = true; // Set the flag to true
             interaction.editReply({ content: 'Not yet registered.', embeds: [], components: [] });
           } else {
             response = interaction.editReply({
@@ -73,7 +76,7 @@ module.exports = {
               if (err) {
                 console.error('Error executing query:', err);
                 interaction.editReply({ content: 'Something went wrong with the query.', components: [] });
-                connection.end();
+                connection.end(); // Close connection on error
                 return;
               }
               if (results.length === 0) {
@@ -89,10 +92,10 @@ module.exports = {
                   if (err) {
                     console.error('Error executing query:', err);
                     interaction.editReply({ content: 'Something went wrong with the query.', components: [] });
-                    connection.end();
+                    connection.end(); // Close connection on error
                     return;
                   }
-                  if (results.length !== 0) {
+                  if (results.affectedRows !== 0) {
                     interaction.editReply({ content: 'Officially unregistered', components: [] });
                     console.log("Connection closed.");
                     connection.end();
@@ -121,8 +124,10 @@ module.exports = {
         })
         .catch(e => {
           interaction.editReply({ content: 'Deleting message...', components: [] });
-          console.log("Connection closed.");
-          connection.end();
+          if (!connectionClosed) { // Check the flag before closing the connection
+            connection.end();
+            console.log("Connection closed.");
+          }// Close connection on error
           setTimeout(() => {
             interaction.deleteReply();
           }, 5000);
