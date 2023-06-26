@@ -10,7 +10,7 @@ module.exports = {
     .setDescription('Unregister your LoL account!'),
   async execute(interaction) {
     try {
-        var response = await interaction.reply({ content: 'Click on \'Unregister\' To unregister and cancel to cancel the command.', components: [], ephemeral: true });
+        var response = await interaction.reply({ content: 'Click on \'Unregister\' To unregister and \'cancel\' to cancel the command.', components: [], ephemeral: true });
         const discordUserID = interaction.user.id;
   
         const unregister = new ButtonBuilder()
@@ -33,50 +33,65 @@ module.exports = {
             database: process.env.DATABASENAME
         });
 
-          const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
+        const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
 
-          let connectionClosed = false; // Flag to track if the connection is closed
+        let connectionClosed = false; // Flag to track if the connection is closed
   
-          connection.connect(err => {
+        connection.connect(err => {
+          if (err) {
+            console.error(err);
+            interaction.editReply({ content: 'Something went wrong with the database connection :(', embeds: [], components: [] });
+            return;
+          }
+          console.log('Connected to the database!');
+  
+          connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
             if (err) {
-              console.error(err);
-              interaction.editReply({ content: 'Something went wrong with the database connection :(', embeds: [], components: [] });
-              return;
+              console.error('Error executing query:', err);
+              return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
             }
-            console.log('Connected to the database!');
-  
-            connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
-              if (err) {
-                console.error('Error executing query:', err);
-                return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
-              }
-              if (results.length === 0) {
-                connection.end();
-                console.log("Connection closed.");
-                connectionClosed = true; // Set the flag to true
-                interaction.editReply({ content: 'Not yet registered.', embeds: [], components: [] });
-              } else {
-                response = interaction.editReply({
-                  content: 'Click on \'Unregister\' To unregister and cancel to cancel the command.',
-                  components: [row],
-                });
-              }
-            });
+            if (results.length === 0) {
+              console.log("Connection closed.");
+              connectionClosed = true; // Set the flag to true
+              interaction.editReply({ content: 'Not yet registered.', embeds: [], components: [] });
+            } else {
+              response = interaction.editReply({
+                content: 'Click on \'Unregister\' To unregister and cancel to cancel the command.',
+                components: [row],
+              });
+            }
           });
+        });
   
-          const collectorFilter = i => i.user.id === interaction.user.id;
+        const collectorFilter = i => i.user.id === interaction.user.id;
   
-          response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 })
-            .then(async confirmation => {
-              if (confirmation.customId === 'unregister') {
-                await confirmation.update({ content: `...`, components: [] });
-                    connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
+        response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 })
+          .then(async confirmation => {
+            if (confirmation.customId === 'unregister') {
+              await confirmation.update({ content: `...`, components: [] });
+              connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
+                if (err) {
+                  console.error('Error executing query:', err);
+                  return interaction.editReply({ content: 'Something went wrong with the query.', components: [] });
+                }
+                if (results.length === 0) {
+                  interaction.editReply({ content: 'Already unregistered.', components: [] });
+                  if (!connectionClosed) { // Check the flag before closing the connection
+                    connection.end();
+                    console.log("Connection closed.");
+                  }
+                  setTimeout(() => {
+                    return interaction.deleteReply();
+                  }, 5000);
+                } else {
+                  const deleteRegistrationQuery = "DELETE FROM LoLregistration WHERE discordID = ?"
+                  connection.query(deleteRegistrationQuery, [discordUserID], (err, results) => {
                     if (err) {
                       console.error('Error executing query:', err);
                       return interaction.editReply({ content: 'Something went wrong with the query.', components: [] });
                     }
-                    if (results.length === 0) {
-                      interaction.editReply({ content: 'Already unregistered.', components: [] });
+                    if (results.length !== 0) {
+                      interaction.editReply({ content: 'Officially unregistered', components: [] });
                       if (!connectionClosed) { // Check the flag before closing the connection
                         connection.end();
                         console.log("Connection closed.");
@@ -84,62 +99,45 @@ module.exports = {
                       setTimeout(() => {
                         return interaction.deleteReply();
                       }, 5000);
-                    } else {
-                        const deleteRegistrationQuery = "DELETE FROM LoLregistration WHERE discordID = ?"
-                        connection.query(deleteRegistrationQuery, [discordUserID], (err, results) => {
-                            if (err) {
-                                console.error('Error executing query:', err);
-                                return interaction.editReply({ content: 'Something went wrong with the query.', components: [] });
-                            }
-                            if (results.length !== 0) {
-                                interaction.editReply({ content: 'Officially unregistered', components: [] });
-                                if (!connectionClosed) { // Check the flag before closing the connection
-                                  connection.end();
-                                  console.log("Connection closed.");
-                                }
-                                setTimeout(() => {
-                                  return interaction.deleteReply();
-                                }, 5000);
-                            }
-                        });
-                        interaction.editReply({ content: 'Succesfully unregistered.', components: [] });
-                        if (!connectionClosed) { // Check the flag before closing the connection
-                          connection.end();
-                          console.log("Connection closed.");
-                        }
-                        setTimeout(() => {
-                          return interaction.deleteReply();
-                        }, 5000);
                     }
-                });
-              } else if (confirmation.customId === 'cancel') {
-                interaction.editReply({ content: 'Cancelling...', components: [] });
-                if (!connectionClosed) { // Check the flag before closing the connection
+                  });
+                  interaction.editReply({ content: 'Successfully unregistered.', components: [] });
+                  if (!connectionClosed) { // Check the flag before closing the connection
                     connection.end();
                     console.log("Connection closed.");
-                }
-                setTimeout(() => {
+                  }
+                  setTimeout(() => {
                     return interaction.deleteReply();
-                }, 2000);
-              }
-            })
-            .catch(e => {
-              interaction.editReply({ content: 'Deleting message..', components: [] });
+                  }, 5000);
+                }
+              });
+            } else if (confirmation.customId === 'cancel') {
+              interaction.editReply({ content: 'Cancelling...', components: [] });
               if (!connectionClosed) { // Check the flag before closing the connection
                 connection.end();
                 console.log("Connection closed.");
               }
               setTimeout(() => {
-                interaction.deleteReply();
-              }, 5000);
-            });
-        }
-        catch (error) {
-            if (error.code === 10008) {
-              console.error('The message could not be found or identified.');
-            } else {
-              console.error(error);
+                return interaction.deleteReply();
+              }, 2000);
             }
-          }
+          })
+          .catch(e => {
+            interaction.editReply({ content: 'Deleting message..', components: [] });
+            if (!connectionClosed) { // Check the flag before closing the connection
+              connection.end();
+              console.log("Connection closed.");
+            }
+            setTimeout(() => {
+              interaction.deleteReply();
+            }, 5000);
+          });
+    } catch (error) {
+      if (error.code === 10008) {
+        console.error('The message could not be found or identified.');
+      } else {
+        console.error(error);
+      }
     }
+  }
 };
