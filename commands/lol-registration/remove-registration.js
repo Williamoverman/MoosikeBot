@@ -135,10 +135,6 @@ module.exports = {
 };
 
 function logInfo(status, title, msg) {
-    const channelName = 'logs';
-
-    const channel = message.guild.channels.cache.find((ch) => ch.name === channelName);
-
     const logEmbed = new EmbedBuilder()
     .setColor(0x0099FF)
     .setTitle(`${status}: ${title}`)
@@ -147,9 +143,14 @@ function logInfo(status, title, msg) {
     .setTimestamp()
     .setFooter(`The executed command name: ${interaction.commandName}`);
 
-    if (channel && channel.isText()) {
-      channel.send({ content: '', embeds: [logEmbed] });
-    } else {
-      console.log(`Channel '${channelName}' not found or not a text channel.`);
+    const channelName = 'logs';
+
+    const guild = interaction.guild;
+    const channel = guild.channels.cache.find(ch => ch.name === channelName);
+
+    if (!channel) {
+      console.log(`Channel "${channelName}" not found.`);
     }
+
+    channel.send(logEmbed);
 }
