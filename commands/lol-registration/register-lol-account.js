@@ -16,7 +16,7 @@ module.exports = {
     try {
       var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true });
 
-      //let discordUsername = interaction.user.username;
+      let discordUsername = interaction.user.username;
       var leagueUsername = interaction.options.getString('username');
       const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`;
   
@@ -79,7 +79,7 @@ module.exports = {
                 connection.end();
                 console.log("Connection closed.");
                 connectionClosed = true; // Set the flag to true
-                //logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
+                logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
                 interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
               } else {
                 response = interaction.editReply({
@@ -108,7 +108,7 @@ module.exports = {
                       return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
                     }
                     if (results.length !== 0) {
-                      //logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
+                      logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
                       interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
                       if (!connectionClosed) { // Check the flag before closing the connection
                         connection.end();
@@ -141,7 +141,7 @@ module.exports = {
                                 return interaction.deleteReply();
                               }, 5000);
                             } else {
-                              //logInfo('Success', 'Succesfully registered', `${discordUsername} succesfully registered`);
+                              logInfo('Success', 'Succesfully registered', `${discordUsername} succesfully registered`);
                               console.log('Data inserted successfully!');
                               interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
                               setTimeout(() => {
@@ -154,7 +154,7 @@ module.exports = {
                             }
                           });
                         } else {
-                          //logInfo('Failed', 'Incorrect profile picture', `${discordUsername} failed to equip the right profile picture`);
+                          logInfo('Failed', 'Incorrect profile picture', `${discordUsername} failed to equip the right profile picture`);
                           interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
                           if (!connectionClosed) { // Check the flag before closing the connection
                             connection.end();
@@ -173,7 +173,7 @@ module.exports = {
               }
             })
             .catch(e => {
-              //logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`);
+              logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`);
               interaction.editReply({ content: 'Deleting message..', embeds: [], components: [] });
               if (!connectionClosed) { // Check the flag before closing the connection
                 connection.end();
@@ -185,7 +185,7 @@ module.exports = {
             });
         })
         .catch(error => {
-          //logInfo('Failed', 'No summoner found', `${discordUsername} inputted a non existent summoner name`);
+          logInfo('Failed', 'No summoner found', `${discordUsername} inputted a non existent summoner name`);
           console.error(error);
           interaction.editReply({ content: 'No summoner found.', embeds: [], components: [] });
           setTimeout(() => {
@@ -207,7 +207,7 @@ module.exports = {
         console.error(error);
       }
     }
-    /*function logInfo(status, title, msg) {
+    function logInfo(status, title, msg) {
       const logEmbed = new EmbedBuilder()
       .setColor(0x0099FF)
       .setTitle(`${status}: ${title}`)
@@ -230,8 +230,8 @@ module.exports = {
         console.log(`Channel "${channelName}" not found.`);
       }
   
-      channel.send(logEmbed);
-    }*/
+      channel.send({ embeds: [logEmbed] });
+    }
   },
 };
 
