@@ -1,4 +1,4 @@
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -9,6 +9,7 @@ module.exports = {
               .setDescription('Whatever you want the bot to say!')),
 	async execute(interaction) {
         let userInteraction = interaction.options.getString('userinput') ?? 'No input given.';
+		await interaction.reply(userInteraction);
 		const logEmbed = new EmbedBuilder()
 		.setColor(0x0099FF)
 		.setTitle(`The executed command name: ${interaction.commandName}`)
@@ -25,6 +26,5 @@ module.exports = {
 		}
 	
 		channel.send(logEmbed);
-		await interaction.reply(userInteraction);
 	},
 };
