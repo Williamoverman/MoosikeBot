@@ -55,6 +55,7 @@ module.exports = {
             console.log("Connection closed.");
             connection.end();
             connectionClosed = true; // Set the flag to true
+            logInfo('Blocked', 'Not yet registered', `${discordUsername} is not yet registered`);
             interaction.editReply({ content: 'Not yet registered.', embeds: [], components: [] });
           } else {
             response = interaction.editReply({
@@ -71,14 +72,15 @@ module.exports = {
         .then(async confirmation => {
           if (confirmation.customId === 'unregister') {
             await confirmation.update({ content: `...`, components: [] });
-            connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
+            connection.query(searchForUsersQuery, [discordUserID], (err, results1) => {
               if (err) {
                 console.error('Error executing query:', err);
                 interaction.editReply({ content: 'Something went wrong with the query.', components: [] });
                 connection.end(); // Close connection on error
                 return;
               }
-              if (results.length === 0) {
+              if (results1.length === 0) {
+                logInfo('Failed', 'Already unregistered', `${discordUsername} was already unregistered`);
                 interaction.editReply({ content: 'Already unregistered.', components: [] });
                 console.log("Connection closed.");
                 connection.end();
@@ -87,28 +89,20 @@ module.exports = {
                 }, 5000);
               } else {
                 const deleteRegistrationQuery = "DELETE FROM LoLregistration WHERE discordID = ?"
-                connection.query(deleteRegistrationQuery, [discordUserID], (err, results) => {
+                connection.query(deleteRegistrationQuery, [discordUserID], (err, results2) => {
                   if (err) {
                     console.error('Error executing query:', err);
                     interaction.editReply({ content: 'Something went wrong with the query.', components: [] });
                     connection.end(); // Close connection on error
                     return;
-                  }
-                  if (results.affectedRows !== 0) {
-                    interaction.editReply({ content: 'Officially unregistered', components: [] });
+                  } 
+                  logInfo('Success', 'Successfully unregistered', `${discordUsername} Successfully unregistered`);
+                    interaction.editReply({ content: 'Successfully unregistered', components: [] });
                     console.log("Connection closed.");
                     connection.end();
                     setTimeout(() => {
                       return interaction.deleteReply();
                     }, 5000);
-                  } else {
-                    interaction.editReply({ content: 'Successfully unregistered.', components: [] });
-                    console.log("Connection closed.");
-                    connection.end();
-                    setTimeout(() => {
-                      return interaction.deleteReply();
-                    }, 5000);
-                  }
                 });
               }
             });
@@ -119,6 +113,7 @@ module.exports = {
           }
         })
         .catch(e => {
+        logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`);
           interaction.editReply({ content: 'Deleting message...', components: [] });
           if (!connectionClosed) { // Check the flag before closing the connection
             connection.end();
@@ -137,3 +132,23 @@ module.exports = {
     }
   }
 };
+
+function logInfo(status, title, msg) {
+    const channelName = 'logs';
+
+    const channel = message.guild.channels.cache.find((ch) => ch.name === channelName);
+
+    const logEmbed = new EmbedBuilder()
+    .setColor(0x0099FF)
+    .setTitle(`${status}: ${title}`)
+    .setAuthor(discordUsername)
+    .setDescription(msg)
+    .setTimestamp()
+    .setFooter(`The executed command name: ${interaction.commandName}`);
+
+    if (channel && channel.isText()) {
+      channel.send({ content: '', embeds: [logEmbed] });
+    } else {
+      console.log(`Channel '${channelName}' not found or not a text channel.`);
+    }
+}
