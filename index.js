@@ -102,7 +102,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
 	const logEmbed = new EmbedBuilder()
       .setColor(0x0099FF)
-      .setTitle(`${interaction.user.username} used ${interaction.commandName}`)
+      .setTitle(`${interaction.user.username} used /${interaction.commandName}`)
       .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
       .setTimestamp()
       .setFooter({ text: `The executed command name: /${interaction.commandName}` });
