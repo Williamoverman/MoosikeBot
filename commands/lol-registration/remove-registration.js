@@ -135,7 +135,7 @@ module.exports = {
         const logEmbed = new EmbedBuilder()
         .setColor(0x0099FF)
         .setTitle(`${status}: ${title}`)
-        .setAuthor({ name: discordUsername, iconURL: interaction.user.avatarURL() })
+        .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
         .setDescription(msg)
         .setTimestamp()
         .setFooter({ text: `The executed command name: ${interaction.commandName}` });
