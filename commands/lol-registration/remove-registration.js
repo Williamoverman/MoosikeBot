@@ -56,7 +56,7 @@ module.exports = {
             console.log("Connection closed.");
             connection.end();
             connectionClosed = true; // Set the flag to true
-            logInfo('Blocked', 'Not yet registered', `${discordUsername} is not yet registered`);
+            logInfo('Blocked', 'Not yet registered', `${discordUsername} is not yet registered`, interaction.user.username, interaction.commandName);
             interaction.editReply({ content: 'Not yet registered.', embeds: [], components: [] });
           } else {
             response = interaction.editReply({
@@ -81,7 +81,7 @@ module.exports = {
                 return;
               }
               if (results1.length === 0) {
-                logInfo('Failed', 'Already unregistered', `${discordUsername} was already unregistered`);
+                logInfo('Failed', 'Already unregistered', `${discordUsername} was already unregistered`, interaction.user.username, interaction.commandName);
                 interaction.editReply({ content: 'Already unregistered.', components: [] });
                 console.log("Connection closed.");
                 connection.end();
@@ -97,7 +97,7 @@ module.exports = {
                     connection.end(); // Close connection on error
                     return;
                   } 
-                  logInfo('Success', 'Successfully unregistered', `${discordUsername} Successfully unregistered`);
+                  logInfo('Success', 'Successfully unregistered', `${discordUsername} Successfully unregistered`, interaction.user.username, interaction.commandName);
                     interaction.editReply({ content: 'Successfully unregistered', components: [] });
                     console.log("Connection closed.");
                     connection.end();
@@ -114,7 +114,7 @@ module.exports = {
           }
         })
         .catch(e => {
-        logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`);
+        logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`, interaction.user.username, interaction.commandName);
           interaction.editReply({ content: 'Deleting message...', components: [] });
           if (!connectionClosed) { // Check the flag before closing the connection
             connection.end();
@@ -132,15 +132,14 @@ module.exports = {
       }
     }
 
-    function logInfo(status, title, msg) {
-        let dcName = interaction.user.username;
+    function logInfo(status, title, msg, username, cmdName) {
         const logEmbed = new EmbedBuilder()
         .setColor(0x0099FF)
         .setTitle(`${status}: ${title}`)
-        .setAuthor(dcName)
+        .setAuthor(username)
         .setDescription(msg)
         .setTimestamp()
-        .setFooter(`The executed command name: ${interaction.commandName}`);
+        .setFooter(`The executed command name: ${cmdName}`);
     
         const channelName = 'logs';
     

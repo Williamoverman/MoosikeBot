@@ -79,7 +79,7 @@ module.exports = {
                 connection.end();
                 console.log("Connection closed.");
                 connectionClosed = true; // Set the flag to true
-                logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
+                logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`, interaction.user.username, interaction.commandName);
                 interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
               } else {
                 response = interaction.editReply({
@@ -108,7 +108,7 @@ module.exports = {
                       return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
                     }
                     if (results.length !== 0) {
-                      logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
+                      logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`, interaction.user.username, interaction.commandName);
                       interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
                       if (!connectionClosed) { // Check the flag before closing the connection
                         connection.end();
@@ -141,7 +141,7 @@ module.exports = {
                                 return interaction.deleteReply();
                               }, 5000);
                             } else {
-                              logInfo('Success', 'Succesfully registered', `${discordUsername} succesfully registered`);
+                              logInfo('Success', 'Succesfully registered', `${discordUsername} succesfully registered`, interaction.user.username, interaction.commandName);
                               console.log('Data inserted successfully!');
                               interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
                               setTimeout(() => {
@@ -154,7 +154,7 @@ module.exports = {
                             }
                           });
                         } else {
-                          logInfo('Failed', 'Incorrect profile picture', `${discordUsername} failed to equip the right profile picture`);
+                          logInfo('Failed', 'Incorrect profile picture', `${discordUsername} failed to equip the right profile picture`, interaction.user.username, interaction.commandName);
                           interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
                           if (!connectionClosed) { // Check the flag before closing the connection
                             connection.end();
@@ -173,7 +173,7 @@ module.exports = {
               }
             })
             .catch(e => {
-              logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`);
+              logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`, interaction.user.username, interaction.commandName);
               interaction.editReply({ content: 'Deleting message..', embeds: [], components: [] });
               if (!connectionClosed) { // Check the flag before closing the connection
                 connection.end();
@@ -185,7 +185,7 @@ module.exports = {
             });
         })
         .catch(error => {
-          logInfo('Failed', 'No summoner found', `${discordUsername} inputted a non existent summoner name`);
+          logInfo('Failed', 'No summoner found', `${discordUsername} inputted a non existent summoner name`, interaction.user.username, interaction.commandName);
           console.error(error);
           interaction.editReply({ content: 'No summoner found.', embeds: [], components: [] });
           setTimeout(() => {
@@ -207,27 +207,26 @@ module.exports = {
         console.error(error);
       }
     }
-    function logInfo(status, title, msg) {
-      let dcName = interaction.user.username;
-        const logEmbed = new EmbedBuilder()
-        .setColor(0x0099FF)
-        .setTitle(`${status}: ${title}`)
-        .setAuthor(dcName)
-        .setDescription(msg)
-        .setTimestamp()
-        .setFooter(`The executed command name: ${interaction.commandName}`);
-    
-        const channelName = 'logs';
-    
-        const guild = interaction.guild;
-        const channel = guild.channels.cache.find(ch => ch.name === channelName);
-    
-        if (!channel) {
-          console.log(`Channel "${channelName}" not found.`);
-        }
-    
-        channel.send(logEmbed);
-    }
+    function logInfo(status, title, msg, username, cmdName) {
+      const logEmbed = new EmbedBuilder()
+      .setColor(0x0099FF)
+      .setTitle(`${status}: ${title}`)
+      .setAuthor(username)
+      .setDescription(msg)
+      .setTimestamp()
+      .setFooter(`The executed command name: ${cmdName}`);
+  
+      const channelName = 'logs';
+  
+      const guild = interaction.guild;
+      const channel = guild.channels.cache.find(ch => ch.name === channelName);
+  
+      if (!channel) {
+        console.log(`Channel "${channelName}" not found.`);
+      }
+  
+      channel.send(logEmbed);
+  }
   },
 };
 
