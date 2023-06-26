@@ -16,7 +16,7 @@ module.exports = {
     try {
       var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true });
 
-      let discordUsername = interaction.user.username;
+      //let discordUsername = interaction.user.username;
       var leagueUsername = interaction.options.getString('username');
       const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`;
   
@@ -207,7 +207,7 @@ module.exports = {
         console.error(error);
       }
     }
-    function logInfo(status, title, msg) {
+    /*function logInfo(status, title, msg) {
       const logEmbed = new EmbedBuilder()
       .setColor(0x0099FF)
       .setTitle(`${status}: ${title}`)
@@ -231,7 +231,7 @@ module.exports = {
       }
   
       channel.send(logEmbed);
-    }
+    }*/
   },
 };
 
