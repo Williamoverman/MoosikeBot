@@ -101,19 +101,6 @@ client.on(Events.InteractionCreate, async interaction => {
 	timestamps.set(interaction.user.id, now);
 	setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
-	try {
-		await command.execute(interaction);
-	} catch (error) {
-		console.error(error);
-		if (interaction.replied || interaction.deferred) {
-			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-		} else {
-			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-		}
-	}
-})
-
-client.on(Events.InteractionCreate, async interaction => {
 	const connection = mysql.createConnection({
 		host: process.env.DATABASEHOST,
 		user: process.env.DATABASEUSER,
@@ -133,33 +120,49 @@ client.on(Events.InteractionCreate, async interaction => {
 
 		connection.query(searchForExistingGuild, [1, interaction.guildId], (err, results) => {
 			if (err) {
-				connection.end();
-				console.log("Connection closed.");
+			  connection.end();
+			  console.log("Connection closed.");
 			  console.error('Error executing query:', err);
 			}
-			if (results !== 0) {
-				const logEmbed = new EmbedBuilder()
+		  
+			if (results.length !== 0) { // Check if results array is not empty
+			  const logEmbed = new EmbedBuilder()
 				.setColor(0x0099FF)
 				.setTitle(`${interaction.user.username} used /${interaction.commandName}`)
 				.setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
 				.setTimestamp()
 				.setFooter({ text: `The executed command name: /${interaction.commandName}` });
-
-				const channelName = results[0].logsChannel;
-
-				const guild = interaction.guild;
-				const channel = guild.channels.cache.find(ch => ch.name === channelName);
-
-				if (!channel) {
+				
+				console.log(results);
+				console.log(results[0]);
+				console.log(results[0].logsChannel);
+			  const channelName = results[0].logsChannel;
+		  
+			  const guild = interaction.guild;
+			  const channel = guild.channels.cache.find(ch => ch.name === channelName);
+		  
+			  if (!channel) {
 				console.log(`Channel "${channelName}" not found.`);
-				}
-
+			  } else {
 				channel.send({ embeds: [logEmbed] });
-				connection.end();
-				console.log("Connection closed.");
+			  }
+		  
+			  connection.end();
+			  console.log("Connection closed.");
 			}
 		});
-	  });
-});
+	});
+
+	try {
+		await command.execute(interaction);
+	} catch (error) {
+		console.error(error);
+		if (interaction.replied || interaction.deferred) {
+			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+		} else {
+			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+		}
+	}
+})
 
 client.login(process.env.TOKEN);
