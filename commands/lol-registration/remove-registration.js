@@ -147,7 +147,6 @@ function logInfo(status, title, msg) {
     } else {
         logEmbed.setDescription('No message provided');
     }
-    
     const channelName = 'logs';
 
     const guild = interaction.guild;
