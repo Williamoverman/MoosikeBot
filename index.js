@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { REST, Routes, Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { REST, Routes, Client, Collection, Events, GatewayIntentBits, ActivityType } = require('discord.js');
 require("dotenv").config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -60,6 +60,11 @@ client.once(Events.ClientReady, c => {
 			console.error(error);
 		}
 	})();
+
+	client.user.setPresence({
+		activities: [{ name: `HALLELOEJAH`, type: ActivityType.Playing }],
+		status: 'League of Legends',
+	});
 });
 
 client.on(Events.InteractionCreate, async interaction => {
