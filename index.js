@@ -121,7 +121,6 @@ client.on(Events.InteractionCreate, async interaction => {
 		connection.query(searchForExistingGuild, [1, interaction.guildId], (err, results) => {
 			if (err) {
 			  connection.end();
-			  console.log("Connection closed.");
 			  console.error('Error executing query:', err);
 			}
 		  
@@ -145,7 +144,6 @@ client.on(Events.InteractionCreate, async interaction => {
 			  }
 			}
 			connection.end();
-			console.log("Connection closed.");
 		});
 	});
 
