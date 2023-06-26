@@ -145,7 +145,7 @@ client.on(Events.InteractionCreate, async interaction => {
 				.setTimestamp()
 				.setFooter({ text: `The executed command name: /${interaction.commandName}` });
 
-				const channelName = results.logsChannel;
+				const channelName = results[0].logsChannel;
 
 				const guild = interaction.guild;
 				const channel = guild.channels.cache.find(ch => ch.name === channelName);
