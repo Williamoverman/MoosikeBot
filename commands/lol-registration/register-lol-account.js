@@ -212,19 +212,24 @@ module.exports = {
       .setColor(0x0099FF)
       .setTitle(`${status}: ${title}`)
       .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
-      .setDescription(msg)
       .setTimestamp()
       .setFooter({ text: `The executed command name: ${interaction.commandName}` });
-    
+  
+      if (msg) {
+          logEmbed.setDescription(msg);
+      } else {
+          logEmbed.setDescription('No message provided');
+      }
+      
       const channelName = 'logs';
-    
+  
       const guild = interaction.guild;
       const channel = guild.channels.cache.find(ch => ch.name === channelName);
-    
+  
       if (!channel) {
         console.log(`Channel "${channelName}" not found.`);
       }
-    
+  
       channel.send(logEmbed);
     }
   },

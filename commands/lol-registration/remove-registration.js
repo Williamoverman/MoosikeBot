@@ -136,10 +136,15 @@ module.exports = {
         .setColor(0x0099FF)
         .setTitle(`${status}: ${title}`)
         .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
-        .setDescription(msg)
         .setTimestamp()
         .setFooter({ text: `The executed command name: ${interaction.commandName}` });
     
+        if (msg) {
+            logEmbed.setDescription(msg);
+        } else {
+            logEmbed.setDescription('No message provided');
+        }
+        
         const channelName = 'logs';
     
         const guild = interaction.guild;
@@ -150,6 +155,6 @@ module.exports = {
         }
     
         channel.send(logEmbed);
-      }
+    }
   }
 };
