@@ -10,7 +10,7 @@ module.exports = {
     .setDescription('Unregister your LoL account!'),
   async execute(interaction) {
     try {
-        var response = await interaction.reply({ content: '', components: [], ephemeral: true });
+        var response = await interaction.reply({ content: 'Click on \'Unregister\' To unregister and cancel to cancel the command.', components: [], ephemeral: true });
         const discordUserID = interaction.user.id;
   
         const unregister = new ButtonBuilder()
@@ -50,14 +50,14 @@ module.exports = {
                 console.error('Error executing query:', err);
                 return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
               }
-              if (results.length !== 0) {
+              if (results.length === 0) {
                 connection.end();
                 console.log("Connection closed.");
                 connectionClosed = true; // Set the flag to true
-                interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
+                interaction.editReply({ content: 'Not yet registered.', embeds: [], components: [] });
               } else {
                 response = interaction.editReply({
-                  content: '',
+                  content: 'Click on \'Unregister\' To unregister and cancel to cancel the command.',
                   components: [row],
                 });
               }
@@ -70,13 +70,12 @@ module.exports = {
             .then(async confirmation => {
               if (confirmation.customId === 'unregister') {
                 await confirmation.update({ content: `...`, components: [] });
-                const deleteRegistrationQuery = "DELETE FROM LoLregistration WHERE discordID = ?"
-                    connection.query(deleteRegistrationQuery, [discordUserID], (err, results) => {
+                    connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
                     if (err) {
                       console.error('Error executing query:', err);
                       return interaction.editReply({ content: 'Something went wrong with the query.', components: [] });
                     }
-                    if (results.length !== 0) {
+                    if (results.length === 0) {
                       interaction.editReply({ content: 'Already unregistered.', components: [] });
                       if (!connectionClosed) { // Check the flag before closing the connection
                         connection.end();
@@ -86,6 +85,23 @@ module.exports = {
                         return interaction.deleteReply();
                       }, 5000);
                     } else {
+                        const deleteRegistrationQuery = "DELETE FROM LoLregistration WHERE discordID = ?"
+                        connection.query(deleteRegistrationQuery, [discordUserID], (err, results) => {
+                            if (err) {
+                                console.error('Error executing query:', err);
+                                return interaction.editReply({ content: 'Something went wrong with the query.', components: [] });
+                            }
+                            if (results.length !== 0) {
+                                interaction.editReply({ content: 'Officially unregistered', components: [] });
+                                if (!connectionClosed) { // Check the flag before closing the connection
+                                  connection.end();
+                                  console.log("Connection closed.");
+                                }
+                                setTimeout(() => {
+                                  return interaction.deleteReply();
+                                }, 5000);
+                            }
+                        });
                         interaction.editReply({ content: 'Succesfully unregistered.', components: [] });
                         if (!connectionClosed) { // Check the flag before closing the connection
                           connection.end();
