@@ -58,7 +58,7 @@ module.exports = {
             interaction.editReply({ content: 'Not yet registered.', embeds: [], components: [] });
           } else {
             response = interaction.editReply({
-              content: 'Click on \'Unregister\' To unregister and cancel to cancel the command.',
+              content: 'Click on \'Unregister\' To unregister and \'Cancel\' to cancel the command.',
               components: [row],
             });
           }
