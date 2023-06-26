@@ -111,10 +111,8 @@ client.on(Events.InteractionCreate, async interaction => {
 	  connection.connect(err => {
 		if (err) {
 			connection.end();
-			console.log("Connection closed.");
 		  console.error(err);
 		}
-		console.log('Connected to the database!');
 
 		const searchForExistingGuild = 'SELECT * FROM serverSettings WHERE logsEnabled = ? AND guildID = ?';
 
