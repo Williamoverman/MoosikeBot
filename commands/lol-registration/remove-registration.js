@@ -10,7 +10,7 @@ module.exports = {
     .setDescription('Unregister your LoL account!'),
   async execute(interaction) {
     try {
-      var response = await interaction.reply({ content: 'Click on \'Unregister\' To unregister and \'Cancel\' to cancel the command.', components: [], ephemeral: true });
+      var response = await interaction.reply({ content: '...', components: [], ephemeral: true });
       const discordUserID = interaction.user.id;
 
       const unregister = new ButtonBuilder()
@@ -117,9 +117,7 @@ module.exports = {
             interaction.editReply({ content: 'Cancelling...', components: [] });
             console.log("Connection closed.");
             connection.end();
-            setTimeout(() => {
-              return interaction.deleteReply();
-            }, 2000);
+            return interaction.deleteReply();
           }
         })
         .catch(e => {
