@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const fetch = require('isomorphic-fetch');
-const { REST, Routes, Client, Collection, Events, GatewayIntentBits, ActivityType } = require('discord.js');
+const { EmbedBuilder, REST, Routes, Client, Collection, Events, GatewayIntentBits, ActivityType } = require('discord.js');
 require("dotenv").config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
