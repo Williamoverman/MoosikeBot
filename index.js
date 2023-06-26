@@ -133,9 +133,6 @@ client.on(Events.InteractionCreate, async interaction => {
 				.setTimestamp()
 				.setFooter({ text: `The executed command name: /${interaction.commandName}` });
 				
-				console.log(results);
-				console.log(results[0]);
-				console.log(results[0].logsChannel);
 			  const channelName = results[0].logsChannel;
 		  
 			  const guild = interaction.guild;
