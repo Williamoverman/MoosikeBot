@@ -143,10 +143,9 @@ client.on(Events.InteractionCreate, async interaction => {
 			  } else {
 				channel.send({ embeds: [logEmbed] });
 			  }
-		  
-			  connection.end();
-			  console.log("Connection closed.");
 			}
+			connection.end();
+			console.log("Connection closed.");
 		});
 	});
 
