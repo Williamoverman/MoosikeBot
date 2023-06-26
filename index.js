@@ -62,8 +62,8 @@ client.once(Events.ClientReady, c => {
 	})();
 
 	client.user.setPresence({
-		activities: [{ name: `HALLELOEJAH`, type: ActivityType.Playing }],
-		status: 'League of Legends',
+		activities: [{ name: `This crazy spotify playlist`, type: ActivityType.Listening }],
+		status: 'Spotify',
 	});
 });
 
