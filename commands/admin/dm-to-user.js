@@ -19,7 +19,7 @@ module.exports = {
         if (allowedUserIDs.includes(interaction.user.id)) {
             const givenID = interaction.options.getString('id') ?? '307079375990423554';
             const givenMessage = interaction.options.getString('message') ?? 'Hi.';
-            client.users.send(givenID, givenMessage);
+            interaction.users.send(givenID, givenMessage);
             setTimeout(() => {
                 return interaction.deleteReply();
             }, 5000);
