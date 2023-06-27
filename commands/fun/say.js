@@ -12,14 +12,15 @@ module.exports = {
 		interaction.user.send('hou je bek dikzak');
 		const collector = interaction.channel.createMessageCollector({ time: 15000 });
 
-		collector.on('collect', m => {
-			console.log(m);
-			interaction.user.send(m);
+		collector.on('collect', (collectedMessage) => {
+			console.log(collectedMessage);
+			interaction.user.send(collectedMessage.content);
 		});
 		
-		collector.on('end', collected => {
+		collector.on('end', (collected) => {
 			interaction.user.send('doei!!!!!!');
 		});
+		
 		await interaction.reply(userInteraction);
 	},
 };
