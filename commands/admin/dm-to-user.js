@@ -5,8 +5,8 @@ const allowedUserIDs = ['307079375990423554'];
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('setuplogs')
-        .setDescription('Setup logs for your server!')
+        .setName('dm')
+        .setDescription('DM to specific user!')
         .addStringOption(option =>
             option.setName('message')
                 .setDescription('The message u want to send')),
