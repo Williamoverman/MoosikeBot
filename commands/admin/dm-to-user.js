@@ -19,7 +19,9 @@ module.exports = {
             const givenID = interaction.options.getString('id') ?? '307079375990423554';
             const givenMessage = interaction.options.getString('message') ?? 'Hi.';
             const client = interaction.client;
-            client.users.send(givenID, givenMessage);
+            client.users.send(givenID, givenMessage).catch(error => {
+                console.log(error)
+            }) 
         } else {
             await interaction.editReply('You do not have the required role to use this command.');
             setTimeout(() => {
