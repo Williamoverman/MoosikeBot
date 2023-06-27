@@ -10,6 +10,16 @@ module.exports = {
 	async execute(interaction) {
         let userInteraction = interaction.options.getString('userinput') ?? 'No input given.';
 		interaction.user.send('hou je bek dikzak');
+		const collectorFilter = i => i.user.id === interaction.user.id;
+		const collector = interaction.channel.createMessageCollector({ filter: collectorFilter, time: 15000 });
+
+		collector.on('collect', m => {
+			interaction.user.send(m);
+		});
+		
+		collector.on('end', collected => {
+			interaction.user.send('doei!!!!!!');
+		});
 		await interaction.reply(userInteraction);
 	},
 };
