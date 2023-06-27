@@ -1,5 +1,4 @@
 const { SlashCommandBuilder } = require('discord.js');
-const mysql = require('mysql');
 
 const allowedUserIDs = ['307079375990423554'];
 
@@ -19,7 +18,8 @@ module.exports = {
         if (allowedUserIDs.includes(interaction.user.id)) {
             const givenID = interaction.options.getString('id') ?? '307079375990423554';
             const givenMessage = interaction.options.getString('message') ?? 'Hi.';
-            interaction.users.send(givenID, givenMessage);
+            const client = interaction.client;
+            client.users.send(givenID, givenMessage);
             setTimeout(() => {
                 return interaction.deleteReply();
             }, 5000);
