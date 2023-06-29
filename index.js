@@ -1,10 +1,13 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { REST, Routes, Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const fetch = require('isomorphic-fetch');
+const mysql = require('mysql');
+const { EmbedBuilder, REST, Routes, Client, Collection, Events, GatewayIntentBits, ActivityType } = require('discord.js');
 require("dotenv").config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
+client.cooldowns = new Collection();
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
@@ -59,6 +62,11 @@ client.once(Events.ClientReady, c => {
 			console.error(error);
 		}
 	})();
+
+	client.user.setPresence({
+		activities: [{ name: `This crazy spotify playlist`, type: ActivityType.Listening }],
+		status: 'Spotify',
+	});
 });
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -69,6 +77,73 @@ client.on(Events.InteractionCreate, async interaction => {
 		console.error(`No command matching ${interaction.commandName} was found.`);
 		return;
 	}
+
+	const { cooldowns } = client;
+
+	if (!cooldowns.has(command.data.name)) {
+		cooldowns.set(command.data.name, new Collection());
+	}
+
+	const now = Date.now();
+	const timestamps = cooldowns.get(command.data.name);
+	const defaultCooldownDuration = 10;
+	const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1000;
+
+	if (timestamps.has(interaction.user.id)) {
+		const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;
+
+		if (now < expirationTime) {
+			const expiredTimestamp = Math.round(expirationTime / 1000);
+			return interaction.reply({ content: `Please wait, you are on a cooldown for \`${command.data.name}\`. You can use it again <t:${expiredTimestamp}:R>.`, ephemeral: true });
+		}
+	}
+
+	timestamps.set(interaction.user.id, now);
+	setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
+
+	const connection = mysql.createConnection({
+		host: process.env.DATABASEHOST,
+		user: process.env.DATABASEUSER,
+		password: process.env.DATABASEPASSWORD,
+		database: process.env.DATABASENAME
+	  });
+
+	  connection.connect(err => {
+		if (err) {
+			connection.end();
+		  console.error(err);
+		}
+
+		const searchForExistingGuild = 'SELECT * FROM serverSettings WHERE logsEnabled = ? AND guildID = ?';
+
+		connection.query(searchForExistingGuild, [1, interaction.guildId], (err, results) => {
+			if (err) {
+			  connection.end();
+			  console.error('Error executing query:', err);
+			}
+		  
+			if (results.length !== 0) { // Check if results array is not empty
+			  const logEmbed = new EmbedBuilder()
+				.setColor(0x0099FF)
+				.setTitle(`${interaction.user.username} used /${interaction.commandName}`)
+				.setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
+				.setTimestamp()
+				.setFooter({ text: `The executed command name: /${interaction.commandName}` });
+				
+			  const channelName = results[0].logsChannel;
+		  
+			  const guild = interaction.guild;
+			  const channel = guild.channels.cache.find(ch => ch.name === channelName);
+		  
+			  if (!channel) {
+				console.log(`Channel "${channelName}" not found.`);
+			  } else {
+				channel.send({ embeds: [logEmbed] });
+			  }
+			}
+			connection.end();
+		});
+	});
 
 	try {
 		await command.execute(interaction);

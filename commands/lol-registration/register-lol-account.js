@@ -4,6 +4,7 @@ const fetch = require('isomorphic-fetch');
 require("dotenv").config();
 
 module.exports = {
+  cooldown: 10,
   data: new SlashCommandBuilder()
     .setName('register')
     .setDescription('Register your LoL account!')
@@ -15,6 +16,7 @@ module.exports = {
     try {
       var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true });
 
+      //let discordUsername = interaction.user.username;
       var leagueUsername = interaction.options.getString('username');
       const apiLink = `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${leagueUsername}?api_key=${process.env.LOLAPITOKEN}`;
   
@@ -54,14 +56,22 @@ module.exports = {
   
           connection.connect(err => {
             if (err) {
+              if (!connectionClosed) { // Check the flag before closing the connection
+                connection.end();
+                console.log("Connection closed.");
+              }
               console.error(err);
               interaction.editReply({ content: 'Something went wrong with the database connection :(', embeds: [], components: [] });
               return;
             }
             console.log('Connected to the database!');
-  
+
             connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
               if (err) {
+                if (!connectionClosed) { // Check the flag before closing the connection
+                  connection.end();
+                  console.log("Connection closed.");
+                }
                 console.error('Error executing query:', err);
                 return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
               }
@@ -69,6 +79,7 @@ module.exports = {
                 connection.end();
                 console.log("Connection closed.");
                 connectionClosed = true; // Set the flag to true
+                //logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
                 interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
               } else {
                 response = interaction.editReply({
@@ -90,9 +101,14 @@ module.exports = {
                   connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
                     if (err) {
                       console.error('Error executing query:', err);
+                      if (!connectionClosed) { // Check the flag before closing the connection
+                        connection.end();
+                        console.log("Connection closed.");
+                      }
                       return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
                     }
                     if (results.length !== 0) {
+                      //logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
                       interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
                       if (!connectionClosed) { // Check the flag before closing the connection
                         connection.end();
@@ -115,12 +131,17 @@ module.exports = {
                           const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
                           connection.query(insertUserQuery, userData, (err, result) => {
                             if (err) {
+                              if (!connectionClosed) { // Check the flag before closing the connection
+                                connection.end();
+                                console.log("Connection closed.");
+                              }
                               console.error('Error inserting data:', err);
                               interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
                               setTimeout(() => {
                                 return interaction.deleteReply();
                               }, 5000);
                             } else {
+                              //logInfo('Success', 'Succesfully registered', `${discordUsername} succesfully registered`);
                               console.log('Data inserted successfully!');
                               interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
                               setTimeout(() => {
@@ -133,6 +154,7 @@ module.exports = {
                             }
                           });
                         } else {
+                          //logInfo('Failed', 'Incorrect profile picture', `${discordUsername} failed to equip the right profile picture`);
                           interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
                           if (!connectionClosed) { // Check the flag before closing the connection
                             connection.end();
@@ -151,6 +173,7 @@ module.exports = {
               }
             })
             .catch(e => {
+              //logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`);
               interaction.editReply({ content: 'Deleting message..', embeds: [], components: [] });
               if (!connectionClosed) { // Check the flag before closing the connection
                 connection.end();
@@ -162,6 +185,7 @@ module.exports = {
             });
         })
         .catch(error => {
+          //logInfo('Failed', 'No summoner found', `${discordUsername} inputted a non existent summoner name`);
           console.error(error);
           interaction.editReply({ content: 'No summoner found.', embeds: [], components: [] });
           setTimeout(() => {
@@ -183,6 +207,31 @@ module.exports = {
         console.error(error);
       }
     }
+    /*function logInfo(status, title, msg) {
+      const logEmbed = new EmbedBuilder()
+      .setColor(0x0099FF)
+      .setTitle(`${status}: ${title}`)
+      .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
+      .setTimestamp()
+      .setFooter({ text: `The executed command name: ${interaction.commandName}` });
+  
+      if (msg) {
+          logEmbed.setDescription(msg);
+      } else {
+          logEmbed.setDescription('No message provided');
+      }
+      
+      const channelName = 'logs';
+  
+      const guild = interaction.guild;
+      const channel = guild.channels.cache.find(ch => ch.name === channelName);
+  
+      if (!channel) {
+        console.log(`Channel "${channelName}" not found.`);
+      }
+  
+      channel.send({ embeds: [logEmbed] });
+    }*/
   },
 };
 
