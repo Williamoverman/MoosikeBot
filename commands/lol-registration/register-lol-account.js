@@ -1,6 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
-const mysql = require('mysql');
 const fetch = require('isomorphic-fetch');
+const mysql = require('mysql');
 require("dotenv").config();
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
       option.setName('username')
         .setDescription('Your LoL username!')
         .setRequired(true)),
-  async execute(interaction) {
+  async execute(interaction, db) {
     try {
       var response = await interaction.reply({ content: '...', embeds: [], components: [], ephemeral: true });
 
@@ -42,53 +42,24 @@ module.exports = {
   
           const row = new ActionRowBuilder()
             .addComponents(ready);
-  
-          const connection = mysql.createConnection({
-            host: process.env.DATABASEHOST,
-            user: process.env.DATABASEUSER,
-            password: process.env.DATABASEPASSWORD,
-            database: process.env.DATABASENAME
-          });
 
           const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
-
-          let connectionClosed = false; // Flag to track if the connection is closed
   
-          connection.connect(err => {
+          db.query(searchForUsersQuery, [discordUserID], (err, results) => {
             if (err) {
-              if (!connectionClosed) { // Check the flag before closing the connection
-                connection.end();
-                console.log("Connection closed.");
-              }
-              console.error(err);
-              interaction.editReply({ content: 'Something went wrong with the database connection :(', embeds: [], components: [] });
-              return;
+              console.error('Error executing query:', err);
+              return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
             }
-            console.log('Connected to the database!');
-
-            connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
-              if (err) {
-                if (!connectionClosed) { // Check the flag before closing the connection
-                  connection.end();
-                  console.log("Connection closed.");
-                }
-                console.error('Error executing query:', err);
-                return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
-              }
-              if (results.length !== 0) {
-                connection.end();
-                console.log("Connection closed.");
-                connectionClosed = true; // Set the flag to true
-                //logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
-                interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
-              } else {
-                response = interaction.editReply({
-                  content: '',
-                  embeds: [lolEmbed],
-                  components: [row],
-                });
-              }
-            });
+            if (results.length !== 0) {
+              //logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
+              interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
+            } else {
+              response = interaction.editReply({
+                content: '',
+                embeds: [lolEmbed],
+                components: [row],
+              });
+            }
           });
   
           const collectorFilter = i => i.user.id === interaction.user.id;
@@ -98,22 +69,14 @@ module.exports = {
               if (confirmation.customId === 'ready') {
                 await confirmation.update({ content: `...`, components: [] });
                 setTimeout(() => {
-                  connection.query(searchForUsersQuery, [discordUserID], (err, results) => {
+                  db.query(searchForUsersQuery, [discordUserID], (err, results) => {
                     if (err) {
                       console.error('Error executing query:', err);
-                      if (!connectionClosed) { // Check the flag before closing the connection
-                        connection.end();
-                        console.log("Connection closed.");
-                      }
                       return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
                     }
                     if (results.length !== 0) {
                       //logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
                       interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
-                      if (!connectionClosed) { // Check the flag before closing the connection
-                        connection.end();
-                        console.log("Connection closed.");
-                      }
                       setTimeout(() => {
                         return interaction.deleteReply();
                       }, 5000);
@@ -129,12 +92,8 @@ module.exports = {
                         if (data1.profileIconId === randomIcon) {
                           const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
                           const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
-                          connection.query(insertUserQuery, userData, (err, result) => {
+                          db.query(insertUserQuery, userData, (err, result) => {
                             if (err) {
-                              if (!connectionClosed) { // Check the flag before closing the connection
-                                connection.end();
-                                console.log("Connection closed.");
-                              }
                               console.error('Error inserting data:', err);
                               interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
                               setTimeout(() => {
@@ -148,21 +107,13 @@ module.exports = {
                                 return interaction.deleteReply();
                               }, 5000);
                             }
-                            if (!connectionClosed) { // Check the flag before closing the connection
-                              connection.end();
-                              console.log("Connection closed.");
-                            }
                           });
                         } else {
                           //logInfo('Failed', 'Incorrect profile picture', `${discordUsername} failed to equip the right profile picture`);
                           interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
-                          if (!connectionClosed) { // Check the flag before closing the connection
-                            connection.end();
-                            console.log("Connection closed.");
-                            setTimeout(() => {
-                              return interaction.deleteReply();
-                            }, 5000);
-                          }
+                          setTimeout(() => {
+                            return interaction.deleteReply();
+                          }, 5000);
                         }
                       }).catch(error => {
                         console.error(error);
@@ -175,10 +126,6 @@ module.exports = {
             .catch(e => {
               //logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`);
               interaction.editReply({ content: 'Deleting message..', embeds: [], components: [] });
-              if (!connectionClosed) { // Check the flag before closing the connection
-                connection.end();
-                console.log("Connection closed.");
-              }
               setTimeout(() => {
                 interaction.deleteReply();
               }, 5000);

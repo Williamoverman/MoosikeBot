@@ -108,15 +108,23 @@ client.on(Events.InteractionCreate, async interaction => {
 		database: process.env.DATABASENAME
 	  });
 
+	const db = mysql.createPool({
+		port: process.env.DATABASEPORT,
+		host: process.env.DATABASEHOST,
+		user: process.env.DATABASEUSER,
+		password: process.env.DATABASEPASSWORD,
+		database: process.env.DATABASENAME,
+		multipleStatements: true
+	  });
+
 	  connection.connect(err => {
 		if (err) {
-			connection.end();
 		  console.error(err);
 		}
 
 		const searchForExistingGuild = 'SELECT * FROM serverSettings WHERE logsEnabled = ? AND guildID = ?';
 
-		connection.query(searchForExistingGuild, [1, interaction.guildId], (err, results) => {
+		db.query(searchForExistingGuild, [1, interaction.guildId], (err, results) => {
 			if (err) {
 			  connection.end();
 			  console.error('Error executing query:', err);
@@ -141,12 +149,11 @@ client.on(Events.InteractionCreate, async interaction => {
 				channel.send({ embeds: [logEmbed] });
 			  }
 			}
-			connection.end();
 		});
 	});
 
 	try {
-		await command.execute(interaction);
+		await command.execute(interaction, db);
 	} catch (error) {
 		console.error(error);
 		if (interaction.replied || interaction.deferred) {
