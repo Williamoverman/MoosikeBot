@@ -43,7 +43,7 @@ module.exports = {
           const row = new ActionRowBuilder()
             .addComponents(ready);
 
-          const searchForUsersQuery = 'SELECT * FROM LoLregistration WHERE discordID = ?';
+          const searchForUsersQuery = 'SELECT * FROM RegistrationLoL WHERE discordID = ?';
   
           db.query(searchForUsersQuery, [discordUserID], (err, results) => {
             if (err) {
@@ -90,22 +90,39 @@ module.exports = {
                       })
                       .then(data1 => {
                         if (data1.profileIconId === randomIcon) {
-                          const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-                          const insertUserQuery = 'INSERT INTO LoLregistration SET ?';
-                          db.query(insertUserQuery, userData, (err, result) => {
+                          const summonerData = {
+                            discordID: discordUserID,
+                            puuID: data1.puuid,
+                            accountID: data1.accountId,
+                            summonerID: data1.id
+                          };
+                          const insertSummonerDetailsQuery = 'INSERT INTO SummonerDetails SET ?';
+                          db.query(insertSummonerDetailsQuery, summonerData, (err) => {
                             if (err) {
-                              console.error('Error inserting data:', err);
+                              console.log(err);
                               interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
                               setTimeout(() => {
                                 return interaction.deleteReply();
                               }, 5000);
                             } else {
-                              //logInfo('Success', 'Succesfully registered', `${discordUsername} succesfully registered`);
-                              console.log('Data inserted successfully!');
-                              interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
-                              setTimeout(() => {
-                                return interaction.deleteReply();
-                              }, 5000);
+                              const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+                              const insertUserQuery = 'INSERT INTO RegistrationLoL SET ?';
+                              db.query(insertUserQuery, userData, (err) => {
+                                if (err) {
+                                  console.error('Error inserting data:', err);
+                                  interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
+                                  setTimeout(() => {
+                                    return interaction.deleteReply();
+                                  }, 5000);
+                                } else {
+                                  //logInfo('Success', 'Succesfully registered', `${discordUsername} succesfully registered`);
+                                  console.log('Data inserted successfully!');
+                                  interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
+                                  setTimeout(() => {
+                                    return interaction.deleteReply();
+                                  }, 5000);
+                                }
+                              });
                             }
                           });
                         } else {

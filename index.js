@@ -101,13 +101,6 @@ client.on(Events.InteractionCreate, async interaction => {
 	timestamps.set(interaction.user.id, now);
 	setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
-	const connection = mysql.createConnection({
-		host: process.env.DATABASEHOST,
-		user: process.env.DATABASEUSER,
-		password: process.env.DATABASEPASSWORD,
-		database: process.env.DATABASENAME
-	  });
-
 	const db = mysql.createPool({
 		port: process.env.DATABASEPORT,
 		host: process.env.DATABASEHOST,
@@ -117,40 +110,33 @@ client.on(Events.InteractionCreate, async interaction => {
 		multipleStatements: true
 	  });
 
-	  connection.connect(err => {
-		if (err) {
-		  console.error(err);
-		}
+	  const searchForExistingGuild = 'SELECT * FROM serverSettings WHERE logsEnabled = ? AND guildID = ?';
 
-		const searchForExistingGuild = 'SELECT * FROM serverSettings WHERE logsEnabled = ? AND guildID = ?';
-
-		db.query(searchForExistingGuild, [1, interaction.guildId], (err, results) => {
-			if (err) {
-			  connection.end();
-			  console.error('Error executing query:', err);
+	  db.query(searchForExistingGuild, [1, interaction.guildId], (err, results) => {
+		  if (err) {
+			console.error('Error executing query:', err);
+		  }
+		
+		  if (results.length !== 0) { // Check if results array is not empty
+			const logEmbed = new EmbedBuilder()
+			  .setColor(0x0099FF)
+			  .setTitle(`${interaction.user.username} used /${interaction.commandName}`)
+			  .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
+			  .setTimestamp()
+			  .setFooter({ text: `The executed command name: /${interaction.commandName}` });
+			  
+			const channelName = results[0].logsChannel;
+		
+			const guild = interaction.guild;
+			const channel = guild.channels.cache.find(ch => ch.name === channelName);
+		
+			if (!channel) {
+			  console.log(`Channel "${channelName}" not found.`);
+			} else {
+			  channel.send({ embeds: [logEmbed] });
 			}
-		  
-			if (results.length !== 0) { // Check if results array is not empty
-			  const logEmbed = new EmbedBuilder()
-				.setColor(0x0099FF)
-				.setTitle(`${interaction.user.username} used /${interaction.commandName}`)
-				.setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
-				.setTimestamp()
-				.setFooter({ text: `The executed command name: /${interaction.commandName}` });
-				
-			  const channelName = results[0].logsChannel;
-		  
-			  const guild = interaction.guild;
-			  const channel = guild.channels.cache.find(ch => ch.name === channelName);
-		  
-			  if (!channel) {
-				console.log(`Channel "${channelName}" not found.`);
-			  } else {
-				channel.send({ embeds: [logEmbed] });
-			  }
-			}
-		});
-	});
+		  }
+	  });
 
 	try {
 		await command.execute(interaction, db);
