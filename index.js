@@ -117,7 +117,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			console.error('Error executing query:', err);
 		  }
 		
-		  if (results.length !== 0) { // Check if results array is not empty
+		  if (results.length !== 0) {
 			const logEmbed = new EmbedBuilder()
 			  .setColor(0x0099FF)
 			  .setTitle(`${interaction.user.username} used /${interaction.commandName}`)
