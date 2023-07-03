@@ -116,7 +116,6 @@ module.exports = {
                                   }, 5000);
                                 } else {
                                   //logInfo('Success', 'Succesfully registered', `${discordUsername} succesfully registered`);
-                                  console.log('Data inserted successfully!');
                                   interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
                                   setTimeout(() => {
                                     return interaction.deleteReply();
