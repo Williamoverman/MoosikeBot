@@ -53,99 +53,102 @@ module.exports = {
             if (results.length !== 0) {
               //logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
               interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
+              setTimeout(() => {
+                return interaction.deleteReply();
+              }, 5000);
             } else {
               response = interaction.editReply({
                 content: '',
                 embeds: [lolEmbed],
                 components: [row],
               });
+              
+            const collectorFilter = i => i.user.id === interaction.user.id;
+    
+            response.awaitMessageComponent({ filter: collectorFilter, time: 90_000 })
+              .then(async confirmation => {
+                if (confirmation.customId === 'ready') {
+                  await confirmation.update({ content: `...`, components: [] });
+                  setTimeout(() => {
+                    db.query(searchForUsersQuery, [discordUserID], (err, results) => {
+                      if (err) {
+                        console.error('Error executing query:', err);
+                        return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
+                      }
+                      if (results.length !== 0) {
+                        //logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
+                        interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
+                        setTimeout(() => {
+                          return interaction.deleteReply();
+                        }, 5000);
+                      } else {
+                        fetch(apiLink)
+                        .then(apiresponse2 => {
+                        if (!apiresponse2.ok) {
+                          throw new Error('API request failed');
+                        }
+                        return apiresponse2.json();
+                        })
+                        .then(data1 => {
+                          if (data1.profileIconId === randomIcon) {
+                            const summonerData = {
+                              discordID: discordUserID,
+                              puuID: data1.puuid,
+                              accountID: data1.accountId,
+                              summonerID: data1.id
+                            };
+                            const insertSummonerDetailsQuery = 'INSERT INTO SummonerDetails SET ?';
+                            db.query(insertSummonerDetailsQuery, summonerData, (err) => {
+                              if (err) {
+                                console.log(err);
+                                interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
+                                setTimeout(() => {
+                                  return interaction.deleteReply();
+                                }, 5000);
+                              } else {
+                                const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
+                                const insertUserQuery = 'INSERT INTO RegistrationLoL SET ?';
+                                db.query(insertUserQuery, userData, (err) => {
+                                  if (err) {
+                                    console.error('Error inserting data:', err);
+                                    interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
+                                    setTimeout(() => {
+                                      return interaction.deleteReply();
+                                    }, 5000);
+                                  } else {
+                                    //logInfo('Success', 'Succesfully registered', `${discordUsername} succesfully registered`);
+                                    interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
+                                    setTimeout(() => {
+                                      return interaction.deleteReply();
+                                    }, 5000);
+                                  }
+                                });
+                              }
+                            });
+                          } else {
+                            //logInfo('Failed', 'Incorrect profile picture', `${discordUsername} failed to equip the right profile picture`);
+                            interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
+                            setTimeout(() => {
+                              return interaction.deleteReply();
+                            }, 5000);
+                          }
+                        }).catch(error => {
+                          console.error(error);
+                        });
+                      }
+                    });
+                  }, 2000);
+                }
+              })
+              .catch(e => {
+                //logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`);
+                interaction.editReply({ content: 'Deleting message..', embeds: [], components: [] });
+                setTimeout(() => {
+                  interaction.deleteReply();
+                }, 5000);
+              });
             }
           });
-  
-          const collectorFilter = i => i.user.id === interaction.user.id;
-  
-          response.awaitMessageComponent({ filter: collectorFilter, time: 90_000 })
-            .then(async confirmation => {
-              if (confirmation.customId === 'ready') {
-                await confirmation.update({ content: `...`, components: [] });
-                setTimeout(() => {
-                  db.query(searchForUsersQuery, [discordUserID], (err, results) => {
-                    if (err) {
-                      console.error('Error executing query:', err);
-                      return interaction.editReply({ content: 'Something went wrong with the query.', embeds: [], components: [] });
-                    }
-                    if (results.length !== 0) {
-                      //logInfo('Failed', 'Already registered', `${discordUsername} tried registering when they were already registered`);
-                      interaction.editReply({ content: 'Already registered.', embeds: [], components: [] });
-                      setTimeout(() => {
-                        return interaction.deleteReply();
-                      }, 5000);
-                    } else {
-                      fetch(apiLink)
-                      .then(apiresponse2 => {
-                      if (!apiresponse2.ok) {
-                        throw new Error('API request failed');
-                      }
-                      return apiresponse2.json();
-                      })
-                      .then(data1 => {
-                        if (data1.profileIconId === randomIcon) {
-                          const summonerData = {
-                            discordID: discordUserID,
-                            puuID: data1.puuid,
-                            accountID: data1.accountId,
-                            summonerID: data1.id
-                          };
-                          const insertSummonerDetailsQuery = 'INSERT INTO SummonerDetails SET ?';
-                          db.query(insertSummonerDetailsQuery, summonerData, (err) => {
-                            if (err) {
-                              console.log(err);
-                              interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
-                              setTimeout(() => {
-                                return interaction.deleteReply();
-                              }, 5000);
-                            } else {
-                              const userData = { discordID: discordUserID, usernameLoL: leagueUsername };
-                              const insertUserQuery = 'INSERT INTO RegistrationLoL SET ?';
-                              db.query(insertUserQuery, userData, (err) => {
-                                if (err) {
-                                  console.error('Error inserting data:', err);
-                                  interaction.editReply({ content: 'Something went wrong with registering :(', embeds: [], components: [] });
-                                  setTimeout(() => {
-                                    return interaction.deleteReply();
-                                  }, 5000);
-                                } else {
-                                  //logInfo('Success', 'Succesfully registered', `${discordUsername} succesfully registered`);
-                                  interaction.editReply({ content: 'Thank you for registering! :)', embeds: [], components: [] });
-                                  setTimeout(() => {
-                                    return interaction.deleteReply();
-                                  }, 5000);
-                                }
-                              });
-                            }
-                          });
-                        } else {
-                          //logInfo('Failed', 'Incorrect profile picture', `${discordUsername} failed to equip the right profile picture`);
-                          interaction.editReply({ content: 'Incorrect profile picture.', embeds: [], components: [] });
-                          setTimeout(() => {
-                            return interaction.deleteReply();
-                          }, 5000);
-                        }
-                      }).catch(error => {
-                        console.error(error);
-                      });
-                    }
-                  });
-                }, 2000);
-              }
-            })
-            .catch(e => {
-              //logInfo('Failed', 'Collector timer ran out', `${discordUsername} failed to respond in time`);
-              interaction.editReply({ content: 'Deleting message..', embeds: [], components: [] });
-              setTimeout(() => {
-                interaction.deleteReply();
-              }, 5000);
-            });
         })
         .catch(error => {
           //logInfo('Failed', 'No summoner found', `${discordUsername} inputted a non existent summoner name`);
