@@ -69,7 +69,7 @@ client.once(Events.ClientReady, c => {
 		status: 'Spotify',
 	});
 
-	schedule1.scheduleJob('0 0 * * *', () => {
+	schedule.scheduleJob('0 0 * * *', () => {
 		const allMsgs = ["Gefaald! :(", "HOU JE KANKER BEK!!!!!!", "Too ez"];
 		const chosenMsgIndexer = Math.floor(Math.random() * allMsgs.length);
 		const channel = client.channels.cache.get('1152993725996335134');
