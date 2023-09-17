@@ -69,8 +69,15 @@ client.once(Events.ClientReady, c => {
 		status: 'Spotify',
 	});
 
-	schedule.scheduleJob('1 20 0 * * *', () => {
-		const allMsgs = ["Gefaald! :(", "HOU JE KANKER BEK!!!!!!", "Too ez", "https://media.discordapp.net/attachments/1127524394227482704/1144697813452726434/complete1.gif"];
+	schedule.scheduleJob('22 0 * * *', () => {
+		const allMsgs = ["Gefaald! :(", "HOU JE KANKER BEK!!!!!!", "Too ez"];
+		const chosenMsgIndexer = Math.floor(Math.random() * allMsgs.length);
+		const channel = client.channels.cache.get('1152993725996335134');
+		channel.send('# ' + allMsgs[chosenMsgIndexer]);
+	});
+
+	schedule.scheduleJob('0 0 * * *', () => {
+		const allMsgs = ["Gefaald! :(", "HOU JE KANKER BEK!!!!!!", "Too ez"];
 		const chosenMsgIndexer = Math.floor(Math.random() * allMsgs.length);
 		const channel = client.channels.cache.get('1152993725996335134');
 		channel.send('# ' + allMsgs[chosenMsgIndexer]);
