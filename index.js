@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const fetch = require('isomorphic-fetch');
+var cron = require("cron");
 const mysql = require('mysql');
 const { EmbedBuilder, REST, Routes, Client, Collection, Events, GatewayIntentBits, ActivityType } = require('discord.js');
 require("dotenv").config();
@@ -67,6 +68,14 @@ client.once(Events.ClientReady, c => {
 		activities: [{ name: `This crazy spotify playlist`, type: ActivityType.Listening }],
 		status: 'Spotify',
 	});
+
+	let scheduledMessage = new cron.CronJob('00 00 18 * * *', () => {
+		   const guild = client.guilds.cache.get(process.env.EASYPARTNERGUILDID);
+		   const channel = guild.channels.cache.get('1152993725996335134');
+		   channel.send('kanker bek');
+		  });
+			  
+	scheduledMessage.start()
 });
 
 client.on(Events.InteractionCreate, async interaction => {
