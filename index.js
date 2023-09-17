@@ -68,8 +68,15 @@ client.once(Events.ClientReady, c => {
 		activities: [{ name: `This crazy spotify playlist`, type: ActivityType.Listening }],
 		status: 'Spotify',
 	});
-
+	
 	schedule.scheduleJob('0 0 * * *', () => {
+		const allMsgs = ["Gefaald! :(", "HOU JE KANKER BEK!!!!!!", "Too ez"];
+		const chosenMsgIndexer = Math.floor(Math.random() * allMsgs.length);
+		const channel = client.channels.cache.get('1152993725996335134');
+		channel.send('# ' + allMsgs[chosenMsgIndexer]);
+	});
+
+	schedule.scheduleJob('25 0 * * *', () => {
 		const allMsgs = ["Gefaald! :(", "HOU JE KANKER BEK!!!!!!", "Too ez"];
 		const chosenMsgIndexer = Math.floor(Math.random() * allMsgs.length);
 		const channel = client.channels.cache.get('1152993725996335134');
