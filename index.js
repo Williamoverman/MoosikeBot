@@ -70,7 +70,7 @@ client.once(Events.ClientReady, c => {
 	});
 
 	//timed message
-	schedule.scheduleJob(`0 45 23 * * *`, () => {
+	schedule.scheduleJob(`0 45 22 * * *`, () => {
 		const exampleEmbed = new EmbedBuilder()
 		.setColor(0x0099FF)
 		.setTitle('Nofap')
