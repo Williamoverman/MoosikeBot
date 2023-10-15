@@ -81,7 +81,7 @@ client.once(Events.ClientReady, c => {
 		.setTimestamp()
 
 		const channel = client.channels.cache.get('1152993725996335134');
-		channel.send(exampleEmbed);
+		channel.send({ embeds: [ exampleEmbed ] });
 	});
 });
 
