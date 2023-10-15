@@ -70,7 +70,7 @@ client.once(Events.ClientReady, c => {
 	});
 
 	//timed message
-	schedule.scheduleJob(`0 40 23 * * *`, () => {
+	schedule.scheduleJob(`0 43 23 * * *`, () => {
 		const exampleEmbed = new EmbedBuilder()
 		.setColor(0x0099FF)
 		.setTitle('Nofap')
@@ -81,7 +81,7 @@ client.once(Events.ClientReady, c => {
 		.setTimestamp()
 
 		const channel = client.channels.cache.get('1152993725996335134');
-		channel.send('# ' + exampleEmbed);
+		channel.send(exampleEmbed);
 	});
 });
 
