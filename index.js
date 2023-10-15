@@ -70,12 +70,19 @@ client.once(Events.ClientReady, c => {
 	});
 
 	//timed message
-	/*schedule.scheduleJob(`0 5 23 * * *`, () => {
-		const allMsgs = ["Gefaald! :(", "HOU JE KANKER BEK!!!!!!", "Too ez", "https://media.discordapp.net/attachments/1127524394227482704/1144697813452726434/complete1.gif"];
-		const chosenMsgIndexer = Math.floor(Math.random() * allMsgs.length);
+	schedule.scheduleJob(`0 38 23 * * *`, () => {
+		const exampleEmbed = new EmbedBuilder()
+		.setColor(0x0099FF)
+		.setTitle('Nofap')
+		.setAuthor({ name: 'DJ Khaled' })
+		.setDescription("<@&1152995114143203330> HALLO HEBBEN JULLIE HET GEHAALD?????????????????????????????? 🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿")
+		.setThumbnail('https://i.imgur.com/AfFp7pu.png')
+		.setImage('https://cdn-longterm.mee6.xyz/plugins/embeds/images/786354212686528543/b93da23083f1c38adf48ae50a7b99a88ebeea7b76e563ba06b887f98d79f9b37.png')
+		.setTimestamp()
+
 		const channel = client.channels.cache.get('1152993725996335134');
-		channel.send('# ' + allMsgs[chosenMsgIndexer]);
-	});*/
+		channel.send('# ' + exampleEmbed);
+	});
 });
 
 client.on(Events.InteractionCreate, async interaction => {
