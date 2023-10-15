@@ -70,19 +70,18 @@ client.once(Events.ClientReady, c => {
 	});
 
 	//timed message
-	schedule.scheduleJob(`0 49 22 * * *`, () => {
-		//const exampleEmbed = new EmbedBuilder()
-		//.setColor(0x0099FF)
-		//.setTitle('Nofap')
-		//.setAuthor({ name: 'DJ Khaled' })
-		//.setDescription("<@&1152995114143203330> HALLO HEBBEN JULLIE HET GEHAALD?????????????????????????????? 🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿🍷🗿")
-		//.setThumbnail('https://i.imgur.com/AfFp7pu.png')
-		//.setImage('https://cdn-longterm.mee6.xyz/plugins/embeds/images/786354212686528543/b93da23083f1c38adf48ae50a7b99a88ebeea7b76e563ba06b887f98d79f9b37.png')
-		//.setTimestamp()
+	schedule.scheduleJob(`0 54 22 * * *`, () => {
+		const exampleEmbed = new EmbedBuilder()
+		.setColor(0x0099FF)
+		.setTitle('Nofap')
+		.setAuthor({ name: 'DJ Khaled' })
+		.setDescription("<@&1152995114143203330> HALLO HEBBEN JULLIE HET GEHAALD?????????????????????????????? :wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai:")
+		.setThumbnail('https://i.imgur.com/AfFp7pu.png')
+		.setImage('https://cdn-longterm.mee6.xyz/plugins/embeds/images/786354212686528543/b93da23083f1c38adf48ae50a7b99a88ebeea7b76e563ba06b887f98d79f9b37.png')
+		.setTimestamp()
 
 		const channel = client.channels.cache.get('1152993725996335134');
-		channel.send('hallo');
-		//{ embeds: [ exampleEmbed ] }
+		channel.send({ embeds: [ exampleEmbed ] });
 	});
 });
 
