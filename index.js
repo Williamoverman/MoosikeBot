@@ -76,7 +76,7 @@ client.once(Events.ClientReady, c => {
 		.setTitle('Nofap')
 		.setAuthor({ name: 'DJ Khaled' })
 		.setDescription("<@&1152995114143203330> HALLO HEBBEN JULLIE HET GEHAALD?????????????????????????????? :wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai::wine_glass::moyai:")
-		.setImage('img/buts.png')
+		.setImage('https://cdn.discordapp.com/attachments/754088551011844249/1165289768502964234/buts.png?ex=65464faa&is=6533daaa&hm=2831d3ed5e3dc4cf763ee6c931d54c81781101bb4531adfc0ad51b088e38b74a&')
 		.setTimestamp()
 
 		const channel = client.channels.cache.get('1152993725996335134');
